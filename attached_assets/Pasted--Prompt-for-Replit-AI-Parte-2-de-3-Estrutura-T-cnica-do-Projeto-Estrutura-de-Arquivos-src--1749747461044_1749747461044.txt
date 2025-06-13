@@ -1,0 +1,124 @@
+🧩 Prompt for Replit AI – Parte 2 de 3: Estrutura Técnica do Projeto
+📁 Estrutura de Arquivos (src/)
+bash
+Copy
+Edit
+/src/
+  /components/
+    icons.tsx             → Componentes funcionais de SVG e emojis
+    ui.tsx                → Componentes reutilizáveis: Botão, Card, Input, Modal, etc.
+    ImageCarousel.tsx     → Galeria de imagens horizontal com navegação
+  /contexts/
+    AppContext.tsx        → Estado global: tema, autenticação, configuração, notificações
+  /hooks/
+    useLocalStorage.ts    → Hook para persistência e sincronização de dados
+  /pages/
+    AdminLayout.tsx       → Layout principal da área administrativa
+    LandingPage.tsx       → Página pública inicial
+    LoginPage.tsx         → Tela de login
+    /admin/
+      AdminDashboard.tsx
+      SchedulingPage.tsx
+      ClientsPage.tsx
+      FinancialsPage.tsx
+      FollowUpPage.tsx
+      TesourinhaPage.tsx    ← Nova página de anotações
+      SettingsPage.tsx
+  App.tsx                 → Roteador e lógica principal do app
+  index.tsx              → Ponto de entrada React
+  constants.ts           → Constantes globais da aplicação
+  types.ts               → Tipagens TypeScript da aplicação
+  utils/helpers.ts       → Funções utilitárias
+📘 Tipagens (types.ts)
+Client:
+
+id, childName, responsibleName, address, birthdate, phone, email?, lastServiceDate?, notes?, serviceCount
+
+AppointmentLocation: enum → 'Domicílio' | 'Salão'
+
+AppointmentStatus: union → 'pending' | 'confirmed' | 'completed' | 'missed' | 'cancelled'
+
+Appointment: inclui clientName, date, location, status, notes, serviceValue
+
+FinancialRecord: id, appointmentId, date, amount, description
+
+AppConfig: stylistName, serviceDescription, homeServiceDays, salonAddress, whatsAppNumber, adminPassword
+
+Theme: 'light' | 'dark'
+
+TesourinhaEntry: date, note
+
+GroundingChunk: campos opcionais para futuras integrações de IA
+
+🧠 Contexto Global (AppContext.tsx)
+AppContextType:
+
+theme, toggleTheme()
+
+isAuthenticated, login(password), logout()
+
+config, updateConfig(newConfig)
+
+showNotification(message, type?)
+
+AppProvider:
+
+Usa useLocalStorage para manter estados.
+
+Autenticação baseada em comparação de senha com config.adminPassword.
+
+Mostra notificações temporárias no canto superior direito.
+
+💾 Hook Personalizado: useLocalStorage
+API: useLocalStorage<T>(key: string, initialValue: T)
+
+Permite persistência de estado com sincronização entre abas.
+
+Implementa fallback em erro de JSON.
+
+Observa eventos de storage no navegador.
+
+🔐 Constantes Globais (constants.ts)
+APP_NAME = "Salão Infantil Encantado"
+
+DEFAULT_STYLIST_NAME = "Tia Déa | Salão Móvel Infantil"
+
+DEFAULT_SERVICE_DESCRIPTION = "Cortes divertidos e estilosos para a criançada, no conforto do seu lar ou em nosso espaço!"
+
+DEFAULT_HOME_SERVICE_DAYS = [1, 2] → Segunda e Terça
+
+DEFAULT_SALON_ADDRESS = "Rua da Alegria, 123 - Bairro Feliz (Consulte sobre atendimento móvel)"
+
+DEFAULT_WHATSAPP_NUMBER = "5511912345678"
+
+ADMIN_DEFAULT_PASSWORD = "1234"
+
+LOCAL_STORAGE_KEYS: THEME_KEY, AUTH_KEY, CONFIG_KEY, CLIENTS_KEY, APPOINTMENTS_KEY, FINANCIALS_KEY, FOLLOWUP_DAYS_KEY, FOLLOWUP_TEMPLATE_KEY, TESOURINHA_KEY
+
+DAYS_OF_WEEK = ["Domingo", "Segunda", ..., "Sábado"]
+
+DEFAULT_FOLLOWUP_MESSAGE: inclui placeholders {cliente} e {pronome}
+
+🛠️ Funções Utilitárias (helpers.ts)
+formatDate(dateString, includeTime?)
+
+formatCurrency(value?)
+
+generateId()
+
+exportToCSV<T>(data, filename, columns)
+
+getDayOfWeek(dateString)
+
+isFutureDate(dateString)
+
+getMonthName(index)
+
+getWhatsAppLink(phone, message?)
+
+isClientRecent(lastServiceDate?) → Últimos 7 dias
+
+isClientOverdueForReturn(lastServiceDate?, daysThreshold?)
+
+getStatusLabel(status) → retorna label amigável em português
+

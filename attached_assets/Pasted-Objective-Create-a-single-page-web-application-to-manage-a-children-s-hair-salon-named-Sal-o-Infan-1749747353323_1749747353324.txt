@@ -1,0 +1,188 @@
+Objective:
+Create a single-page web application to manage a children's hair salon named "Salão Infantil Encantado", branded as "Tia Déa". The app must be built with React, TypeScript, and Tailwind CSS, with all data persisted using browser LocalStorage (no backend).
+
+✅ Functional Requirements
+1. Client Registration
+Required fields:
+
+Child’s full name
+
+Responsible adult (parent or guardian)
+
+Full address
+
+Child’s birthdate
+
+These fields must appear in the "New Client" form and in the edit modal.
+
+The “child name” field in the scheduling form should support autocomplete based on existing clients.
+
+2. Appointments Management
+Add, edit, delete, and list appointments.
+
+Views for day, week, and month.
+
+Each appointment includes: child’s name, datetime, location (home or salon), status, service value, and notes.
+
+Cards show visual indicators for status (color and icon).
+
+Quick actions: mark as completed, canceled, or revert status.
+
+3. Birthday Reminder System
+On each dashboard load, check for birthdays matching today’s date.
+
+If any, show a visual 🎉 notification:
+“Today is Joãozinho’s birthday! How about sending a special message?”
+
+Save birthdayCheckedToday = true in LocalStorage to avoid duplicates.
+
+4. Landing Page (Public View)
+Displays salon name, description, and address (from config).
+
+New dynamic text:
+“Atendimento a Domicílio: Segunda, Terça e Quarta (consulte disponibilidade).”
+
+Image gallery (carousel) with hover effect and rounded borders.
+
+A “Schedule via WhatsApp” button that opens WhatsApp with the following pre-filled message:
+
+css
+Copy
+Edit
+Olá, me chamo {responsável}, quero agendar um corte para {nome da criança}.
+Endereço: {endereço}.
+Aniversário: {data}.
+Podemos combinar o horário?
+This message is not stored — it only facilitates first contact.
+
+5. Admin Panel (Protected Area)
+Routes protected by admin password.
+
+Bottom tab navigation with:
+
+Dashboard
+
+Appointments
+
+Clients
+
+Financials
+
+Follow-ups (WhatsApp)
+
+Settings
+
+✂️ Tesourinha Log (new)
+
+6. Tesourinha Log
+New section for free-form notes about in-salon services (not linked to appointments).
+
+Each entry includes:
+
+Date
+
+Text/Notes
+
+Entries listed in reverse chronological order (most recent first).
+
+7. Client Directory
+Grid and list view options.
+
+Filters:
+
+By name or phone
+
+By month of last service
+
+Client cards show:
+
+Contact info with WhatsApp button
+
+Last service date
+
+Number of services
+
+Notes
+
+Badges:
+
+"Recent" (last 7 days)
+
+"VIP" (3+ services)
+
+8. Financial Management
+All completed appointments with serviceValue are converted to financial records.
+
+Filters by year and month.
+
+Summary:
+
+Total earnings (filtered and annual)
+
+Visual chart using recharts (bar chart by month).
+
+CSV export with selected data.
+
+9. Client Follow-Up System
+Configurable reminder days (default: 45 days).
+
+Editable message template with variables:
+
+{cliente} = client’s name
+
+{pronome} = pronoun (auto-detected by name, e.g., names ending in “a” use “ela”)
+
+List of clients eligible for follow-up.
+
+“Send via WhatsApp” button generates pre-filled message and opens wa.me link.
+
+10. Settings
+General configuration form:
+
+Stylist name
+
+Service description
+
+Salon address
+
+WhatsApp number
+
+Home service days (checkbox list)
+
+Admin password (min 4 characters)
+
+Additional options:
+
+Export full app data (JSON)
+
+Import data (restore from backup)
+
+Full reset (clears LocalStorage after double confirmation)
+
+Logout button
+
+11. New Visual Identity
+Primary colors:
+
+Lilac #A78BFA
+
+Light Blue #93C5FD
+
+Supporting colors (for badges/alerts):
+
+Pastel Green, Red, Pink
+
+All instances of the logo must be updated with the new version provided.
+
+12. Playful Child-Friendly Design
+Gradient background with soft lilac and blue.
+
+Cloud/star/balloon-style decorative icons.
+
+Font: Comic Neue (via CDN).
+
+Use of emojis in UI elements and section titles.
+
+Rounded cards and carousel items with soft hover animations.
+
+If you'd like, I can also generate the full UI component structure, hooks, context logic, and index.html structure as the next part

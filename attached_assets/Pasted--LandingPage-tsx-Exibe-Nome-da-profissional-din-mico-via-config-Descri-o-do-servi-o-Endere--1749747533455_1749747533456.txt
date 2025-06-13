@@ -1,0 +1,239 @@
+🌐 LandingPage.tsx
+Exibe:
+
+Nome da profissional (dinâmico via config)
+
+Descrição do serviço
+
+Endereço completo
+
+Dias de atendimento a domicílio com novo texto:
+👉 “Atendimento a Domicílio: Segunda, Terça e Quarta (consulte disponibilidade)”
+
+Galeria de fotos (ImageCarousel):
+
+Imagens com bordas grandes, hover suave e rolagem horizontal suave
+
+Fundo com gradiente lilás e azul claro
+
+Ícones decorativos estilo nuvem, balão ou estrela
+
+Fonte infantil amigável (ex: Comic Neue)
+
+Botão “Agendar via WhatsApp”:
+
+Abre link do WhatsApp com mensagem automática:
+
+css
+Copy
+Edit
+Olá, me chamo {responsável}, quero agendar um corte para {nome da criança}.
+Endereço: {endereço}.
+Aniversário: {data}.
+Podemos combinar o horário?
+Botão do Instagram com ícone personalizado e link para o perfil
+
+Botão flutuante com ProfileIcon → rota de login (/login)
+
+🔐 LoginPage.tsx
+Card centralizado com input de senha
+
+Mostrar/esconder senha com EyeIcon
+
+Validação de senha
+
+Exibe alerta se senha for o padrão (“1234”)
+
+Fundo com gradiente igual ao da LandingPage
+
+⚙️ AdminLayout.tsx
+Barra de navegação inferior com 7 ícones:
+
+Painel 🏠
+
+Agenda 📅
+
+Clientes 👩‍👧
+
+Financeiro 📊
+
+Retornos 💬
+
+Configurações ⚙️
+
+✂️ Tesourinha (novo diário)
+
+Ícone ativo com destaque lilás
+
+Outlet para conteúdo principal
+
+🏠 AdminDashboard.tsx
+Mensagem de boas-vindas com nome da profissional
+
+Exibe a logo com anel lilás
+
+Quick Actions (em cards coloridos):
+
+“Novo Agendamento” (amarelo pastel)
+
+“Novo Cliente” (verde pastel)
+
+“Lembrar Retorno” (rosa pastel)
+
+Cartões de Estatísticas:
+
+Agenda da semana (📅)
+
+Total de clientes (👤)
+
+Agendamentos do dia (✨)
+
+Lembrete de Aniversário:
+
+Verifica aniversariantes ao carregar
+
+Exibe 🎉 notificação no topo
+
+Usa birthdayCheckedToday para evitar duplicações
+
+📅 SchedulingPage.tsx
+Título: "Agenda de Atendimentos"
+
+Filtros por dia / semana / mês
+
+Botões de navegação: Anterior / Próximo
+
+Cards de agendamento:
+
+Cor da borda lateral varia por status
+
+Ícones para Domicílio 🏠 ou Salão 🏪
+
+Destaque para agendamentos de hoje com anel lilás
+
+Ações rápidas:
+
+Editar ✏️, Excluir 🗑️, Concluir ✅, Cancelar 🚫, Reverter ⏪
+
+Modal de Novo Agendamento:
+
+Campos: nome (autocomplete), data/hora (com step 15min), local, status, valor, observações
+
+Respeita ?action=add para abrir diretamente
+
+👨‍👩‍👧 ClientsPage.tsx
+Título: "Cadastro de Clientes"
+
+Botão: “Novo Cliente”
+
+Visualização:
+
+Grade (cards) ou Lista (tabela)
+
+Filtros:
+
+Por nome ou telefone
+
+Por mês do último atendimento
+
+Exibição:
+
+Nome da criança
+
+Nome do responsável
+
+Telefone com link WhatsApp
+
+Último atendimento
+
+Total de atendimentos
+
+Notas (com borda lilás)
+
+Badges:
+
+“Recente” (últimos 7 dias)
+
+“VIP” (3+ atendimentos)
+
+Ações: Editar / Excluir
+
+Modal com campos novos do cliente: nome da criança, responsável, endereço, aniversário, telefone, email, notas
+
+💸 FinancialsPage.tsx
+Título: "Controle Financeiro"
+
+Filtros por mês e ano
+
+Cartão resumo com valor total filtrado e anual
+
+Gráfico de barras com ganhos mensais (recharts)
+
+Tabela de registros:
+
+Data, descrição, valor formatado
+
+Botão de exportar CSV
+
+Dados derivados de agendamentos concluídos com serviceValue
+
+💬 FollowUpPage.tsx
+Título: "Mensagens de Retorno"
+
+Card de configurações:
+
+Dias sem retorno (ex: 45)
+
+Template de mensagem com {cliente} e {pronome}
+
+Card de lista:
+
+Clientes que precisam de retorno
+
+Exibe: nome, telefone, data do último serviço
+
+Botão para enviar mensagem via WhatsApp
+
+✂️ TesourinhaPage.tsx
+Novo item do menu
+
+Título: “Agenda Tesourinha”
+
+Exibe lista simples de anotações:
+
+Data
+
+Texto livre
+
+Botão para adicionar nova anotação
+
+Entradas listadas da mais recente para a mais antiga
+
+Não se vincula a agendamentos
+
+⚙️ SettingsPage.tsx
+Título: “Configurações Gerais”
+
+Formulário com:
+
+Nome da profissional
+
+Descrição do serviço
+
+Endereço do salão
+
+Número do WhatsApp
+
+Dias de atendimento (checkbox)
+
+Nova senha (mínimo 4 caracteres)
+
+Tema claro/escuro com botão de toggle
+
+Backup e importação de dados via JSON
+
+Zona de perigo:
+
+Reset total com dupla confirmação
+
+Botão “Sair da área administrativa”
