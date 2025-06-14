@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useApp } from '../contexts/AppContext';
 import { getWhatsAppLink } from '../utils/helpers';
+import { clientService } from '../services/supabaseService';
 
 // Imagens padrão caso não haja imagens na galeria
 const defaultSalonImages = [
@@ -34,7 +35,7 @@ interface SchedulingFormData {
 
 export default function LandingPage() {
   const { config } = useApp();
-  
+
   // Usar imagens da galeria se disponíveis, senão usar as padrão
   const salonImages = config.galleryImages.length > 0 ? config.galleryImages : defaultSalonImages;
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,31 +53,74 @@ export default function LandingPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const message = `Olá Tia Déa, gostaria de agendar um corte com você. Segue as informações:
+
+    try {
+      // Salvar cliente automaticamente
+      const clientData = {
+        childName: formData.childName,
+        responsibleName: formData.responsibleName,
+        address: formData.address,
+        birthdate: formData.birthdate,
+        phone: '', // Será preenchido posteriormente se necessário
+        email: undefined,
+        notes: `Agendamento solicitado em ${new Date().toLocaleDateString('pt-BR')} para ${formData.preferredDate ? new Date(formData.preferredDate).toLocaleDateString('pt-BR') : 'data não informada'} às ${formData.preferredTime || 'horário não informado'}`,
+        serviceCount: 0,
+        serviceType: 'Domicílio' as const
+      };
+
+      await clientService.create(clientData);
+
+      const message = `Olá Tia Déa, gostaria de agendar um corte com você. Segue as informações:
 
 Nome do responsável: ${formData.responsibleName}
 Nome da criança: ${formData.childName}
 Endereço: ${formData.address}
-Data de nascimento: ${formData.birthdate}
+Data de nascimento: ${formData.birthdate ? new Date(formData.birthdate).toLocaleDateString('pt-BR') : 'Não informado'}
 Data preferida: ${formData.preferredDate ? new Date(formData.preferredDate).toLocaleDateString('pt-BR') : 'Não informado'}
 Horário preferido: ${formData.preferredTime || 'Não informado'}`;
 
-    const whatsappLink = getWhatsAppLink('5571988624093', message);
-    window.open(whatsappLink, '_blank');
-    setIsModalOpen(false);
-    
-    // Reset form
-    setFormData({
-      responsibleName: '',
-      childName: '',
-      address: '',
-      birthdate: '',
-      preferredDate: '',
-      preferredTime: ''
-    });
+      const whatsappLink = getWhatsAppLink('5571988624093', message);
+      window.open(whatsappLink, '_blank');
+      setIsModalOpen(false);
+
+      // Reset form
+      setFormData({
+        responsibleName: '',
+        childName: '',
+        address: '',
+        birthdate: '',
+        preferredDate: '',
+        preferredTime: ''
+      });
+
+    } catch (error) {
+      console.error('Erro ao salvar cliente:', error);
+      // Mesmo com erro ao salvar, ainda envia o WhatsApp
+      const message = `Olá Tia Déa, gostaria de agendar um corte com você. Segue as informações:
+
+Nome do responsável: ${formData.responsibleName}
+Nome da criança: ${formData.childName}
+Endereço: ${formData.address}
+Data de nascimento: ${formData.birthdate ? new Date(formData.birthdate).toLocaleDateString('pt-BR') : 'Não informado'}
+Data preferida: ${formData.preferredDate ? new Date(formData.preferredDate).toLocaleDateString('pt-BR') : 'Não informado'}
+Horário preferido: ${formData.preferredTime || 'Não informado'}`;
+
+      const whatsappLink = getWhatsAppLink('5571988624093', message);
+      window.open(whatsappLink, '_blank');
+      setIsModalOpen(false);
+
+      // Reset form
+      setFormData({
+        responsibleName: '',
+        childName: '',
+        address: '',
+        birthdate: '',
+        preferredDate: '',
+        preferredTime: ''
+      });
+    }
   };
 
   return (
@@ -124,7 +168,7 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
             emoji="🌟"
             description={config.serviceDescription}
           />
-          
+
           <div className="bg-gradient-to-r from-[#A678E2] to-[#4AB7F0] text-white p-4 rounded-2xl mb-6">
             <p className="font-semibold text-center text-[18px]">🏠 Atendimento a Domicílio: 
             Segunda e Terça (consulte disponibilidade)</p>
@@ -233,7 +277,7 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
               Preencha os dados abaixo para enviar via WhatsApp
             </p>
           </DialogHeader>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="responsibleName">👤 Nome do Responsável</Label>
@@ -246,7 +290,7 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
                 className="mt-1"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="childName">👶 Nome da Criança</Label>
               <Input
@@ -258,7 +302,7 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
                 className="mt-1"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="address">🏠 Endereço Completo</Label>
               <Textarea
@@ -271,7 +315,7 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
                 rows={3}
               />
             </div>
-            
+
             <div>
               <Label htmlFor="birthdate">🎂 Data de Aniversário</Label>
               <Input
@@ -284,7 +328,7 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
                 className="mt-1"
               />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="preferredDate">📅 Data Preferida</Label>
@@ -299,7 +343,7 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
                   min={new Date().toISOString().split('T')[0]}
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="preferredTime">⏰ Horário Preferido</Label>
                 <div className="relative mt-1">
@@ -338,7 +382,7 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
                 </div>
               </div>
             </div>
-            
+
             <div className="flex space-x-3 pt-4">
               <CustomButton 
                 type="button" 

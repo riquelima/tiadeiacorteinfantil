@@ -156,6 +156,7 @@ export default function SchedulingPage() {
         clientName: editFormData.clientName,
         date: `${editFormData.date} ${editFormData.time}`,
         location: editFormData.location,
+        status: selectedAppointment?.status || 'pending',
         notes: editFormData.notes,
         serviceValue: editFormData.serviceValue ? parseFloat(editFormData.serviceValue) : undefined
       };
@@ -545,6 +546,26 @@ export default function SchedulingPage() {
                 <SelectContent>
                   <SelectItem value="Salão">Salão</SelectItem>
                   <SelectItem value="Domicílio">Domicílio</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="editStatus">Status</Label>
+              <Select value={selectedAppointment?.status || 'pending'} onValueChange={(value: AppointmentStatus) => {
+                if (selectedAppointment) {
+                  setSelectedAppointment({...selectedAppointment, status: value});
+                }
+              }}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pendente</SelectItem>
+                  <SelectItem value="confirmed">Confirmado</SelectItem>
+                  <SelectItem value="completed">Concluído</SelectItem>
+                  <SelectItem value="cancelled">Cancelado</SelectItem>
+                  <SelectItem value="missed">Faltou</SelectItem>
                 </SelectContent>
               </Select>
             </div>

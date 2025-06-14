@@ -21,6 +21,7 @@ export default function FinancialsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth().toString());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
+  const [locationFilter, setLocationFilter] = useState<'all' | 'Salão' | 'Domicílio'>('all');
   
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
@@ -59,11 +60,13 @@ export default function FinancialsPage() {
   const completedAppointments = useMemo(() => {
     return appointments.filter(app => {
       const appDate = new Date(app.date);
+      const locationMatch = locationFilter === 'all' || app.location === locationFilter;
       return app.status === 'completed' && 
              appDate.getMonth() === parseInt(selectedMonth) && 
-             appDate.getFullYear() === parseInt(selectedYear);
+             appDate.getFullYear() === parseInt(selectedYear) &&
+             locationMatch;
     });
-  }, [appointments, selectedMonth, selectedYear]);
+  }, [appointments, selectedMonth, selectedYear, locationFilter]);
 
   const totalRevenue = useMemo(() => {
     const recordsTotal = filteredRecords.reduce((sum, record) => sum + record.amount, 0);
@@ -103,7 +106,8 @@ export default function FinancialsPage() {
         Data: formatDate(record.date),
         Valor: formatCurrency(record.amount),
         Descrição: record.description,
-        Tipo: 'Receita Manual'
+        Tipo: 'Receita Manual',
+        Local: 'N/A'
       })),
       ...completedAppointments
         .filter(app => app.serviceValue)
@@ -111,7 +115,8 @@ export default function FinancialsPage() {
           Data: formatDate(app.date),
           Valor: formatCurrency(app.serviceValue),
           Descrição: `Serviço - ${app.clientName}`,
-          Tipo: 'Agendamento'
+          Tipo: 'Agendamento',
+          Local: app.location
         }))
     ];
 
@@ -119,10 +124,12 @@ export default function FinancialsPage() {
       { key: 'Data' as keyof typeof exportData[0], label: 'Data' },
       { key: 'Valor' as keyof typeof exportData[0], label: 'Valor' },
       { key: 'Descrição' as keyof typeof exportData[0], label: 'Descrição' },
-      { key: 'Tipo' as keyof typeof exportData[0], label: 'Tipo' }
+      { key: 'Tipo' as keyof typeof exportData[0], label: 'Tipo' },
+      { key: 'Local' as keyof typeof exportData[0], label: 'Local' }
     ];
 
-    exportToCSV(exportData, `financeiro-${selectedMonth}-${selectedYear}`, columns);
+    const locationSuffix = locationFilter === 'all' ? 'todos' : locationFilter.toLowerCase();
+    exportToCSV(exportData, `financeiro-${selectedMonth}-${selectedYear}-${locationSuffix}`, columns);
   };
 
   const deleteRecord = (id: string) => {
@@ -130,6 +137,7 @@ export default function FinancialsPage() {
   };
 
   const currentMonthName = new Date(parseInt(selectedYear), parseInt(selectedMonth)).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  const locationText = locationFilter === 'all' ? '' : ` - ${locationFilter}`;
 
   return (
     <div className="space-y-6">
@@ -211,7 +219,7 @@ export default function FinancialsPage() {
         </div>
       </div>
 
-      {/* Month/Year Filter */}
+      {/* Month/Year/Location Filter */}
       <div className="flex gap-4">
         <Select value={selectedMonth} onValueChange={setSelectedMonth}>
           <SelectTrigger className="w-[140px]">
@@ -239,6 +247,17 @@ export default function FinancialsPage() {
                 </SelectItem>
               );
             })}
+          </SelectContent>
+        </Select>
+
+        <Select value={locationFilter} onValueChange={(value: 'all' | 'Salão' | 'Domicílio') => setLocationFilter(value)}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos Locais</SelectItem>
+            <SelectItem value="Salão">🏪 Salão</SelectItem>
+            <SelectItem value="Domicílio">🏠 Domicílio</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -294,7 +313,7 @@ export default function FinancialsPage() {
       {/* Financial Records */}
       <Card>
         <CardHeader>
-          <CardTitle>Movimentação Financeira - {currentMonthName}</CardTitle>
+          <CardTitle>Movimentação Financeira - {currentMonthName}{locationText}</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -333,7 +352,7 @@ export default function FinancialsPage() {
                 <div key={appointment.id} className="flex items-center justify-between p-4 border rounded-lg bg-green-50">
                   <div>
                     <p className="font-medium">Serviço - {appointment.clientName}</p>
-                    <p className="text-sm text-gray-600">{formatDate(appointment.date)}</p>
+                    <p className="text-sm text-gray-600">{formatDate(appointment.date)} • {appointment.location === 'Salão' ? '🏪' : '🏠'} {appointment.location}</p>
                   </div>
                   <span className="font-bold text-green-600">
                     {formatCurrency(appointment.serviceValue)}
