@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Save, User, MapPin, Phone, Instagram, Clock, Lock } from 'lucide-react';
+import { Settings, Save, User, MapPin, Phone, Instagram, Clock, Lock, ChevronDown, ChevronRight } from 'lucide-react';
 import { CustomButton, SectionHeader } from '../../components/ui-custom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -14,6 +14,12 @@ export default function SettingsPage() {
   const { config, updateConfig, theme, toggleTheme, showNotification } = useApp();
   const [formData, setFormData] = useState(config);
   const [hasChanges, setHasChanges] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    profile: false,
+    contact: false,
+    service: false,
+    security: false
+  });
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -32,6 +38,13 @@ export default function SettingsPage() {
     showNotification('Alterações descartadas', 'info');
   };
 
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -43,142 +56,190 @@ export default function SettingsPage() {
 
       {/* Profile Settings */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <User className="w-5 h-5" />
-            Informações do Profissional
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => toggleSection('profile')}
+        >
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Informações do Profissional
+            </div>
+            {expandedSections.profile ? (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronRight className="w-5 h-5 text-gray-500" />
+            )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="stylistName">Nome do Profissional</Label>
-            <Input
-              id="stylistName"
-              value={formData.stylistName}
-              onChange={(e) => handleInputChange('stylistName', e.target.value)}
-              placeholder="Seu nome profissional"
-            />
-          </div>
+        {expandedSections.profile && (
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="stylistName">Nome do Profissional</Label>
+              <Input
+                id="stylistName"
+                value={formData.stylistName}
+                onChange={(e) => handleInputChange('stylistName', e.target.value)}
+                placeholder="Seu nome profissional"
+              />
+            </div>
 
-          <div>
-            <Label htmlFor="serviceDescription">Descrição do Serviço</Label>
-            <Textarea
-              id="serviceDescription"
-              value={formData.serviceDescription}
-              onChange={(e) => handleInputChange('serviceDescription', e.target.value)}
-              placeholder="Descreva seus serviços..."
-              rows={3}
-            />
-          </div>
-        </CardContent>
+            <div>
+              <Label htmlFor="serviceDescription">Descrição do Serviço</Label>
+              <Textarea
+                id="serviceDescription"
+                value={formData.serviceDescription}
+                onChange={(e) => handleInputChange('serviceDescription', e.target.value)}
+                placeholder="Descreva seus serviços..."
+                rows={3}
+              />
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* Contact Settings */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Phone className="w-5 h-5" />
-            Informações de Contato
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => toggleSection('contact')}
+        >
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Phone className="w-5 h-5" />
+              Informações de Contato
+            </div>
+            {expandedSections.contact ? (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronRight className="w-5 h-5 text-gray-500" />
+            )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="whatsAppNumber">Número do WhatsApp</Label>
-            <Input
-              id="whatsAppNumber"
-              value={formData.whatsAppNumber}
-              onChange={(e) => handleInputChange('whatsAppNumber', e.target.value)}
-              placeholder="5511999999999"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Formato: código do país + DDD + número (sem espaços ou símbolos)
-            </p>
-          </div>
+        {expandedSections.contact && (
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="whatsAppNumber">Número do WhatsApp</Label>
+              <Input
+                id="whatsAppNumber"
+                value={formData.whatsAppNumber}
+                onChange={(e) => handleInputChange('whatsAppNumber', e.target.value)}
+                placeholder="5511999999999"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Formato: código do país + DDD + número (sem espaços ou símbolos)
+              </p>
+            </div>
 
-          <div>
-            <Label htmlFor="instagramUrl">Instagram</Label>
-            <Input
-              id="instagramUrl"
-              value={formData.instagramUrl}
-              onChange={(e) => handleInputChange('instagramUrl', e.target.value)}
-              placeholder="https://instagram.com/seu_perfil"
-            />
-          </div>
+            <div>
+              <Label htmlFor="instagramUrl">Instagram</Label>
+              <Input
+                id="instagramUrl"
+                value={formData.instagramUrl}
+                onChange={(e) => handleInputChange('instagramUrl', e.target.value)}
+                placeholder="https://instagram.com/seu_perfil"
+              />
+            </div>
 
-          <div>
-            <Label htmlFor="salonAddress">Endereço do Salão</Label>
-            <Textarea
-              id="salonAddress"
-              value={formData.salonAddress}
-              onChange={(e) => handleInputChange('salonAddress', e.target.value)}
-              placeholder="Endereço completo do seu salão..."
-              rows={2}
-            />
-          </div>
-        </CardContent>
+            <div>
+              <Label htmlFor="salonAddress">Endereço do Salão</Label>
+              <Textarea
+                id="salonAddress"
+                value={formData.salonAddress}
+                onChange={(e) => handleInputChange('salonAddress', e.target.value)}
+                placeholder="Endereço completo do seu salão..."
+                rows={2}
+              />
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* Service Settings */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="w-5 h-5" />
-            Configurações de Atendimento
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => toggleSection('service')}
+        >
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              Configurações de Atendimento
+            </div>
+            {expandedSections.service ? (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronRight className="w-5 h-5 text-gray-500" />
+            )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label className="text-base font-medium">Dias de Atendimento Domiciliar</Label>
-            <p className="text-sm text-gray-600 mb-3">
-              Selecione os dias da semana em que você atende em domicílio
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {DAYS_OF_WEEK.map((day, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`day-${index}`}
-                    checked={formData.homeServiceDays.includes(index)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        handleInputChange('homeServiceDays', [...formData.homeServiceDays, index]);
-                      } else {
-                        handleInputChange('homeServiceDays', formData.homeServiceDays.filter(d => d !== index));
-                      }
-                    }}
-                  />
-                  <Label htmlFor={`day-${index}`} className="text-sm">
-                    {day}
-                  </Label>
-                </div>
-              ))}
+        {expandedSections.service && (
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-base font-medium">Dias de Atendimento Domiciliar</Label>
+              <p className="text-sm text-gray-600 mb-3">
+                Selecione os dias da semana em que você atende em domicílio
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {DAYS_OF_WEEK.map((day, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`day-${index}`}
+                      checked={formData.homeServiceDays.includes(index)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          handleInputChange('homeServiceDays', [...formData.homeServiceDays, index]);
+                        } else {
+                          handleInputChange('homeServiceDays', formData.homeServiceDays.filter(d => d !== index));
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`day-${index}`} className="text-sm">
+                      {day}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </CardContent>
+          </CardContent>
+        )}
       </Card>
 
       {/* Security Settings */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lock className="w-5 h-5" />
-            Configurações de Segurança
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => toggleSection('security')}
+        >
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Lock className="w-5 h-5" />
+              Configurações de Segurança
+            </div>
+            {expandedSections.security ? (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronRight className="w-5 h-5 text-gray-500" />
+            )}
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="adminPassword">Senha do Administrador</Label>
-            <Input
-              id="adminPassword"
-              type="password"
-              value={formData.adminPassword}
-              onChange={(e) => handleInputChange('adminPassword', e.target.value)}
-              placeholder="Nova senha"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Deixe em branco para manter a senha atual
-            </p>
-          </div>
-        </CardContent>
+        {expandedSections.security && (
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="adminPassword">Senha do Administrador</Label>
+              <Input
+                id="adminPassword"
+                type="password"
+                value={formData.adminPassword}
+                onChange={(e) => handleInputChange('adminPassword', e.target.value)}
+                placeholder="Nova senha"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Deixe em branco para manter a senha atual
+              </p>
+            </div>
+          </CardContent>
+        )}
       </Card>
 
 

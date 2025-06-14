@@ -1,3 +1,4 @@
+
 import { Switch, Route } from "wouter";
 import { AppProvider } from "./contexts/AppContext";
 import { Toaster } from "@/components/ui/toaster";
@@ -6,6 +7,11 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import AdminLayout from "./pages/AdminLayout";
 import { useApp } from "./contexts/AppContext";
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { TooltipProvider } from '@/components/ui/tooltip';
+
+const queryClient = new QueryClient();
 
 function AppRouter() {
   const { isAuthenticated } = useApp();
@@ -26,12 +32,14 @@ function AppRouter() {
 
 function App() {
   return (
-    <AppProvider>
-      <div className="min-h-screen bg-gray-50">
-        <AppRouter />
-        <Toaster />
-      </div>
-    </AppProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AppProvider>
+          <AppRouter />
+          <Toaster />
+        </AppProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
 

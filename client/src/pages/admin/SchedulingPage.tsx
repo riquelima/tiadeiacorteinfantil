@@ -41,9 +41,23 @@ export default function SchedulingPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validar se o cliente está cadastrado
+    const selectedClient = clients.find(client => 
+      formData.clientName === `${client.childName} - ${client.responsibleName}` ||
+      formData.clientName === client.childName ||
+      formData.clientName === client.responsibleName ||
+      formData.clientName.toLowerCase().includes(client.childName.toLowerCase()) ||
+      formData.clientName.toLowerCase().includes(client.responsibleName.toLowerCase())
+    );
+
+    if (!selectedClient) {
+      alert(`Erro: Cliente "${formData.clientName}" não encontrado!\n\nSó é possível agendar para clientes cadastrados. Por favor:\n1. Vá para a página "Clientes"\n2. Cadastre o cliente primeiro\n3. Retorne para fazer o agendamento`);
+      return;
+    }
+    
     const newAppointment: Appointment = {
       id: generateId(),
-      clientName: formData.clientName,
+      clientName: `${selectedClient.childName} (${selectedClient.responsibleName})`,
       date: `${formData.date} ${formData.time}`,
       location: formData.location,
       status: 'pending',
@@ -100,76 +114,111 @@ export default function SchedulingPage() {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="clientName">Nome do Cliente</Label>
-                <Popover open={isClientDropdownOpen} onOpenChange={setIsClientDropdownOpen}>
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      className="w-full justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 flex items-center"
-                    >
-                      <span className={formData.clientName ? "text-foreground" : "text-muted-foreground"}>
-                        {formData.clientName || "Selecione ou digite o nome do cliente"}
-                      </span>
-                      <ChevronDown className="h-4 w-4 opacity-50" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[400px] p-0" align="start">
-                    <Command>
-                      <CommandInput 
-                        placeholder="Buscar cliente ou digite um novo nome..." 
-                        value={formData.clientName}
-                        onValueChange={(value) => setFormData(prev => ({ ...prev, clientName: value }))}
-                      />
-                      {clients.length === 0 ? (
-                        <div className="py-4 px-3 text-center">
-                          <p className="text-sm text-muted-foreground">Nenhum cliente cadastrado ainda.</p>
-                        </div>
-                      ) : (
-                        <>
-                          <CommandEmpty>
-                            <div className="py-2 px-3">
-                              <p className="text-sm text-muted-foreground mb-2">Nenhum cliente encontrado com este nome.</p>
-                              {formData.clientName && (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setIsClientDropdownOpen(false);
-                                  }}
-                                  className="text-sm text-primary hover:underline"
-                                >
-                                  Usar "{formData.clientName}" como novo cliente
-                                </button>
+                <Label htmlFor="clientName">👶 Nome da Criança (Cliente)</Label>
+                <div className="relative">
+                  <Input
+                    id="clientName"
+                    type="text"
+                    placeholder={clients.length > 0 ? "Clique para selecionar um cliente..." : "Nenhum cliente cadastrado"}
+                    value={formData.clientName}
+                    onChange={(e) => {
+                      setFormData(prev => ({ ...prev, clientName: e.target.value }));
+                      if (!isClientDropdownOpen) {
+                        setIsClientDropdownOpen(true);
+                      }
+                    }}
+                    onFocus={() => setIsClientDropdownOpen(true)}
+                    onBlur={() => setTimeout(() => setIsClientDropdownOpen(false), 200)}
+                    required
+                    disabled={clients.length === 0}
+                    className="pr-8"
+                  />
+                  <ChevronDown 
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 cursor-pointer"
+                    onClick={() => setIsClientDropdownOpen(!isClientDropdownOpen)}
+                  />
+                  
+                  {isClientDropdownOpen && clients.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto mt-1">
+                      <div className="p-2 text-xs text-gray-500 bg-gray-50 border-b">
+                        ✅ {clients.length} cliente{clients.length !== 1 ? 's' : ''} cadastrado{clients.length !== 1 ? 's' : ''} - Clique para selecionar
+                      </div>
+                      
+                      {(() => {
+                        // Filtra clientes baseado no texto digitado
+                        const searchTerm = formData.clientName.toLowerCase().trim();
+                        const filteredClients = clients.filter(client => {
+                          if (!searchTerm) return true; // Se não há busca, mostra todos
+                          return client.childName.toLowerCase().includes(searchTerm) ||
+                                 client.responsibleName.toLowerCase().includes(searchTerm);
+                        });
+                        
+                        // Se há busca mas nenhum resultado
+                        if (searchTerm && filteredClients.length === 0) {
+                          return (
+                            <div className="p-3 text-center text-red-500 text-sm bg-red-50">
+                              ❌ Nenhum cliente encontrado para "{formData.clientName}"
+                              <br />
+                              <span className="text-xs">Tente buscar por outro nome</span>
+                            </div>
+                          );
+                        }
+                        
+                        // Lista de clientes filtrados
+                        const clientsToShow = filteredClients.length > 0 ? filteredClients : clients;
+                        
+                        return clientsToShow.map((client) => (
+                          <div
+                            key={client.id}
+                            className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setFormData(prev => ({ 
+                                ...prev, 
+                                clientName: `${client.childName} - ${client.responsibleName}`
+                              }));
+                              setIsClientDropdownOpen(false);
+                            }}
+                          >
+                            <div className="flex flex-col">
+                              <span className="font-bold text-base text-[#A78BFA]">👶 {client.childName}</span>
+                              <span className="text-xs text-gray-600">
+                                👤 Responsável: {client.responsibleName}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                📍 {client.serviceType || 'Domicílio'} | 🎂 {new Date(client.birthdate).toLocaleDateString('pt-BR')}
+                              </span>
+                              {client.phone && (
+                                <span className="text-xs text-gray-500">
+                                  📱 {client.phone}
+                                </span>
                               )}
                             </div>
-                          </CommandEmpty>
-                          <CommandGroup heading="Clientes Cadastrados">
-                            {clients.map((client) => (
-                              <CommandItem
-                                key={client.id}
-                                value={`${client.childName} ${client.responsibleName}`}
-                                onSelect={() => {
-                                  setFormData(prev => ({ 
-                                    ...prev, 
-                                    clientName: `${client.childName} - ${client.responsibleName}` 
-                                  }));
-                                  setIsClientDropdownOpen(false);
-                                }}
-                                className="cursor-pointer"
-                              >
-                                <div className="flex flex-col w-full">
-                                  <span className="font-medium">{client.childName}</span>
-                                  <span className="text-xs text-muted-foreground">
-                                    Responsável: {client.responsibleName} | {client.serviceType}
-                                  </span>
-                                </div>
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </>
+                          </div>
+                        ));
+                      })()}
+                      
+                      {!formData.clientName.trim() && (
+                        <div className="p-2 text-xs text-blue-600 bg-blue-50">
+                          💡 Digite para buscar ou clique em um cliente da lista
+                        </div>
                       )}
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                    </div>
+                  )}
+                  
+                  {isClientDropdownOpen && clients.length === 0 && (
+                    <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-50 mt-1">
+                      <div className="p-4 text-center text-red-500 text-sm bg-red-50">
+                        ❌ Nenhum cliente cadastrado ainda!
+                        <br />
+                        <span className="text-xs font-semibold">Vá para a página "Clientes" para cadastrar novos clientes primeiro.</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  ⚠️ Somente clientes já cadastrados podem ser agendados
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

@@ -111,7 +111,7 @@ export default function FollowUpPage() {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Configurações de Follow-up</DialogTitle>
+              <DialogTitle>Configurações</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>

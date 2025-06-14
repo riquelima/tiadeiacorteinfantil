@@ -17,11 +17,11 @@ export default function AdminDashboard() {
   const totalClients = clients.length;
   const recentClients = clients.filter(client => isClientRecent(client.lastServiceDate)).length;
   const vipClients = clients.filter(client => client.serviceCount >= 3).length;
-  
+
   const today = new Date().toISOString().split('T')[0];
   const todayAppointments = appointments.filter(apt => apt.date.startsWith(today));
   const pendingAppointments = appointments.filter(apt => apt.status === 'pending').length;
-  
+
   // Week appointments (next 7 days)
   const nextWeek = new Date();
   nextWeek.setDate(nextWeek.getDate() + 7);
@@ -30,15 +30,32 @@ export default function AdminDashboard() {
     const todayDate = new Date(today);
     return aptDate >= todayDate && aptDate <= nextWeek && apt.status !== 'cancelled';
   });
-  
+
+  // Calculate monthly earnings from all revenue sources
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
-  const monthlyEarnings = financials
+
+  const completedAppointmentsThisMonth = appointments.filter(apt => {
+    const aptDate = new Date(apt.date);
+    return aptDate.getMonth() === currentMonth && 
+           aptDate.getFullYear() === currentYear &&
+           apt.status === 'completed' &&
+           apt.serviceValue;
+  });
+
+  const monthlyEarnings = completedAppointmentsThisMonth
+    .reduce((sum, apt) => sum + (apt.serviceValue || 0), 0);
+
+  // Add manual financial records for the current month
+  const monthlyFinancials = financials
     .filter(record => {
       const recordDate = new Date(record.date);
-      return recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear;
+      return recordDate.getMonth() === currentMonth && 
+             recordDate.getFullYear() === currentYear;
     })
     .reduce((sum, record) => sum + record.amount, 0);
+
+  const totalMonthlyEarnings = monthlyEarnings + monthlyFinancials;
 
   const recentAppointments = appointments
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -111,13 +128,13 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Faturamento Mensal</p>
-              <p className="text-3xl font-bold text-gray-800">{formatCurrency(monthlyEarnings)}</p>
+              <p className="text-3xl font-bold text-gray-800">{formatCurrency(totalMonthlyEarnings)}</p>
             </div>
             <DollarSign className="w-8 h-8 text-[#7BD8B2]" />
           </div>
           <div className="mt-4">
             <Badge variant="secondary" className="text-xs">
-              {financials.filter(f => f.date.startsWith(new Date().toISOString().slice(0, 7))).length} serviços
+              {completedAppointmentsThisMonth.length} serviços concluídos
             </Badge>
           </div>
         </GradientCard>
@@ -128,7 +145,7 @@ export default function AdminDashboard() {
         <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center">
           ⚡ Ações Rápidas
         </h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link href="/admin/appointments">
             <CustomButton 
@@ -139,7 +156,7 @@ export default function AdminDashboard() {
               <span className="text-sm font-medium">Novo Agendamento</span>
             </CustomButton>
           </Link>
-          
+
           <Link href="/admin/clients">
             <CustomButton 
               variant="outline" 
@@ -149,7 +166,7 @@ export default function AdminDashboard() {
               <span className="text-sm font-medium">Novo Cliente</span>
             </CustomButton>
           </Link>
-          
+
           <Link href="/admin/followup">
             <CustomButton 
               variant="outline" 
@@ -159,7 +176,7 @@ export default function AdminDashboard() {
               <span className="text-sm font-medium">Retornos</span>
             </CustomButton>
           </Link>
-          
+
           <Link href="/admin/financials">
             <CustomButton 
               variant="outline" 
@@ -186,7 +203,7 @@ export default function AdminDashboard() {
               </button>
             </Link>
           </div>
-          
+
           <div className="space-y-4">
             {upcomingAppointments.length === 0 ? (
               <p className="text-gray-500 text-center py-8">
@@ -230,7 +247,7 @@ export default function AdminDashboard() {
               </button>
             </Link>
           </div>
-          
+
           <div className="space-y-4">
             {recentAppointments.length === 0 ? (
               <p className="text-gray-500 text-center py-8">
