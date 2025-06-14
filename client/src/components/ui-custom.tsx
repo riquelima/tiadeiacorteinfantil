@@ -9,13 +9,13 @@ interface CustomButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement
 
 export const CustomButton = React.forwardRef<HTMLButtonElement, CustomButtonProps>(
   ({ className, variant = 'primary', size = 'md', children, ...props }, ref) => {
-    const baseClasses = 'inline-flex items-center justify-center rounded-full font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2';
+    const baseClasses = 'inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 shadow-md hover:shadow-lg';
     
     const variantClasses = {
-      primary: 'bg-gradient-to-r from-[#A78BFA] to-[#93C5FD] text-white hover:opacity-90 focus:ring-purple-500',
-      secondary: 'bg-gradient-to-r from-[#86EFAC] to-[#FBBF24] text-gray-800 hover:opacity-90 focus:ring-green-500',
-      outline: 'border-2 border-[#A78BFA] text-[#A78BFA] hover:bg-[#A78BFA] hover:text-white focus:ring-purple-500',
-      ghost: 'text-gray-600 hover:bg-gray-100 focus:ring-gray-500'
+      primary: 'bg-[#A678E2] text-white hover:bg-[#8B4ED1] focus:ring-[#A678E2]',
+      secondary: 'bg-[#4AB7F0] text-white hover:bg-[#339ED5] focus:ring-[#4AB7F0]',
+      outline: 'border-2 border-[#A678E2] text-[#A678E2] hover:bg-[#A678E2] hover:text-white focus:ring-[#A678E2]',
+      ghost: 'text-[#A678E2] hover:bg-[#A678E2]/10 focus:ring-[#A678E2]'
     };
     
     const sizeClasses = {
@@ -51,8 +51,8 @@ export const GradientCard: React.FC<GradientCardProps> = ({
 }) => {
   return (
     <div className={cn(
-      'bg-white/95 backdrop-blur-sm rounded-xl md:rounded-2xl lg:rounded-3xl shadow-lg md:shadow-xl lg:shadow-2xl p-4 md:p-6',
-      hover && 'card-hover cursor-pointer',
+      'bg-white rounded-3xl p-6 shadow-purple-soft border border-[#4AB7F0]/20',
+      hover && 'hover:shadow-blue-soft transition-all duration-300 hover:-translate-y-1',
       className
     )}>
       {children}
@@ -72,11 +72,11 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   className = '' 
 }) => {
   const variantClasses = {
-    success: 'bg-green-100 text-green-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-    error: 'bg-red-100 text-red-800',
-    info: 'bg-blue-100 text-blue-800',
-    default: 'bg-gray-100 text-gray-800'
+    success: 'bg-[#7BD8B2]/20 text-[#059669] border border-[#7BD8B2]',
+    warning: 'bg-[#F9D449]/20 text-[#D97706] border border-[#F9D449]',
+    error: 'bg-[#F86D70]/20 text-[#DC2626] border border-[#F86D70]',
+    info: 'bg-[#4AB7F0]/20 text-[#0284C7] border border-[#4AB7F0]',
+    default: 'bg-[#A678E2]/20 text-[#7C3AED] border border-[#A678E2]'
   };
 
   return (
@@ -110,7 +110,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         {title}
       </h2>
       {description && (
-        <p className="text-sm md:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto">
+        <p className="text-sm md:text-base lg:text-lg max-w-2xl mx-auto whitespace-pre-line text-[#1f2937]">
           {description}
         </p>
       )}

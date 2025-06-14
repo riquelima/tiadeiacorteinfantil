@@ -31,6 +31,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useLocalStorage<Theme>(LOCAL_STORAGE_KEYS.THEME_KEY, 'light');
   const [isAuthenticated, setIsAuthenticated] = useLocalStorage<boolean>(LOCAL_STORAGE_KEYS.AUTH_KEY, false);
   const [config, setConfig] = useLocalStorage<AppConfig>(LOCAL_STORAGE_KEYS.CONFIG_KEY, defaultConfig);
+
+  // Migration: Update address and service days if they're still the old defaults
+  useEffect(() => {
+    let needsUpdate = false;
+    const updates: Partial<AppConfig> = {};
+    
+    if (config.salonAddress === "Rua da Alegria, 123 - Bairro Feliz (Consulte sobre atendimento móvel)") {
+      updates.salonAddress = DEFAULT_SALON_ADDRESS;
+      needsUpdate = true;
+    }
+    
+    if (JSON.stringify(config.homeServiceDays) === JSON.stringify([1, 2, 3])) {
+      updates.homeServiceDays = DEFAULT_HOME_SERVICE_DAYS;
+      needsUpdate = true;
+    }
+    
+    if (needsUpdate) {
+      setConfig(prev => ({ ...prev, ...updates }));
+    }
+  }, [config.salonAddress, config.homeServiceDays, setConfig]);
   const [clients] = useLocalStorage<Client[]>(LOCAL_STORAGE_KEYS.CLIENTS_KEY, []);
   const [birthdayCheckedToday, setBirthdayCheckedToday] = useLocalStorage<string>(LOCAL_STORAGE_KEYS.BIRTHDAY_CHECKED_KEY, '');
 

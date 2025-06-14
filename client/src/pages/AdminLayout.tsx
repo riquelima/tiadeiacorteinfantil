@@ -49,12 +49,16 @@ export default function AdminLayout() {
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between h-14 md:h-16">
             <div className="flex items-center space-x-2 md:space-x-3">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-r from-[#A78BFA] to-[#93C5FD] rounded-full flex items-center justify-center text-white">
-                <ScissorsIcon className="text-base md:text-lg" />
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden">
+                <img 
+                  src="https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/logo.png" 
+                  alt="Tia Déa Logo" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div>
                 <h1 className="text-lg md:text-xl font-bold text-gray-800">Admin Panel</h1>
-                <p className="text-xs md:text-sm text-[#A78BFA] hidden sm:block">{config.stylistName}</p>
+                <p className="text-xs md:text-sm text-[#A678E2] hidden sm:block">{config.stylistName}</p>
               </div>
             </div>
 
@@ -65,7 +69,7 @@ export default function AdminLayout() {
                   <button
                     className={`px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                       isActive(item.path)
-                        ? 'bg-[#A78BFA] text-white'
+                        ? 'bg-[#A678E2] text-white'
                         : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
                     }`}
                   >
@@ -78,7 +82,7 @@ export default function AdminLayout() {
                 <button
                   className={`px-2 lg:px-3 py-2 rounded-lg text-xs lg:text-sm font-medium transition-colors ${
                     isActive('/admin/settings')
-                      ? 'bg-[#A78BFA] text-white'
+                      ? 'bg-[#A678E2] text-white'
                       : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
                   }`}
                 >

@@ -65,7 +65,7 @@ export default function AdminDashboard() {
               <p className="text-sm font-medium text-gray-600">Total de Clientes</p>
               <p className="text-3xl font-bold text-gray-800">{totalClients}</p>
             </div>
-            <Users className="w-8 h-8 text-[#A78BFA]" />
+            <Users className="w-8 h-8 text-[#A678E2]" />
           </div>
           <div className="mt-4 flex items-center space-x-2">
             <Badge variant="secondary" className="text-xs">
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
               <p className="text-sm font-medium text-gray-600">Agendamentos Hoje</p>
               <p className="text-3xl font-bold text-gray-800">{todayAppointments.length}</p>
             </div>
-            <Calendar className="w-8 h-8 text-[#93C5FD]" />
+            <Calendar className="w-8 h-8 text-[#4AB7F0]" />
           </div>
           <div className="mt-4">
             <Badge variant="outline" className="text-xs">
@@ -98,7 +98,7 @@ export default function AdminDashboard() {
               <p className="text-sm font-medium text-gray-600">Agendamentos Semana</p>
               <p className="text-3xl font-bold text-gray-800">{weekAppointments.length}</p>
             </div>
-            <Clock className="w-8 h-8 text-[#FBBF24]" />
+            <Clock className="w-8 h-8 text-[#F9D449]" />
           </div>
           <div className="mt-4">
             <Badge variant="secondary" className="text-xs">
@@ -113,7 +113,7 @@ export default function AdminDashboard() {
               <p className="text-sm font-medium text-gray-600">Faturamento Mensal</p>
               <p className="text-3xl font-bold text-gray-800">{formatCurrency(monthlyEarnings)}</p>
             </div>
-            <DollarSign className="w-8 h-8 text-[#86EFAC]" />
+            <DollarSign className="w-8 h-8 text-[#7BD8B2]" />
           </div>
           <div className="mt-4">
             <Badge variant="secondary" className="text-xs">

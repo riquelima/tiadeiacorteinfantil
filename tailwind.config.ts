@@ -6,14 +6,26 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+        sans: ['Poppins', 'Inter', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      boxShadow: {
+        'purple-soft': '0 4px 20px rgba(166, 120, 226, 0.15)',
+        'blue-soft': '0 4px 20px rgba(74, 183, 240, 0.15)',
+      },
       colors: {
+        'purple-primary': '#A678E2',
+        'blue-secondary': '#4AB7F0',
+        'yellow-star': '#F9D449',
+        'green-success': '#7BD8B2',
+        'red-coral': '#F86D70',
+        'text-primary': '#1F1F1F',
+        'text-secondary': '#4B5563',
+        'background-light': '#F9FAFB',
         background: "var(--background)",
         foreground: "var(--foreground)",
         card: {
@@ -86,6 +98,7 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "float": "float 3s ease-in-out infinite",
       },
     },
   },

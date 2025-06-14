@@ -2,11 +2,11 @@ export const APP_NAME = "Salão Infantil Encantado";
 
 export const DEFAULT_STYLIST_NAME = "Tia Déa | Salão Móvel Infantil";
 
-export const DEFAULT_SERVICE_DESCRIPTION = "Cortes divertidos e estilosos para a criançada, no conforto do seu lar ou em nosso espaço!";
+export const DEFAULT_SERVICE_DESCRIPTION = "✨ Transformamos cortes em momentos mágicos! ✨\n\nCom mais de 21 anos de dedicação e carinho, o Tia Déa Salão Móvel Infantil é referência em cortes e cuidados voltados para o público infantil. Mais do que um simples atendimento, oferecemos uma experiência divertida, segura e personalizada — no conforto do seu lar ou em nosso espaço encantado.";
 
-export const DEFAULT_HOME_SERVICE_DAYS = [1, 2, 3]; // Segunda, Terça, Quarta
+export const DEFAULT_HOME_SERVICE_DAYS = [1, 2]; // Segunda, Terça
 
-export const DEFAULT_SALON_ADDRESS = "Rua da Alegria, 123 - Bairro Feliz (Consulte sobre atendimento móvel)";
+export const DEFAULT_SALON_ADDRESS = "Rua Alameda Dilson Jatahy Fonseca, Stella Maris - Salvador/BA";
 
 export const DEFAULT_WHATSAPP_NUMBER = "5511912345678";
 
@@ -44,9 +44,9 @@ export const APPOINTMENT_STATUS_LABELS = {
 };
 
 export const APPOINTMENT_STATUS_COLORS = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  completed: 'bg-green-100 text-green-800',
-  missed: 'bg-red-100 text-red-800',
-  cancelled: 'bg-gray-100 text-gray-800'
+  pending: 'bg-[#F9D449]/20 text-[#D97706] border border-[#F9D449]',
+  confirmed: 'bg-[#4AB7F0]/20 text-[#0284C7] border border-[#4AB7F0]',
+  completed: 'bg-[#7BD8B2]/20 text-[#059669] border border-[#7BD8B2]',
+  missed: 'bg-[#F86D70]/20 text-[#DC2626] border border-[#F86D70]',
+  cancelled: 'bg-[#A678E2]/20 text-[#7C3AED] border border-[#A678E2]'
 };

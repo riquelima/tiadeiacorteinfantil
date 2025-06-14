@@ -12,9 +12,14 @@ import { useApp } from '../contexts/AppContext';
 import { getWhatsAppLink } from '../utils/helpers';
 
 const salonImages = [
-  'https://images.unsplash.com/photo-1560472355-536de3962603?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400',
-  'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400',
-  'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400'
+  'https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/1.png',
+  'https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/2.png',
+  'https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/3.png',
+  'https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/4.png',
+  'https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/5.png',
+  'https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/6.png',
+  'https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/7.png',
+  'https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/8.png'
 ];
 
 interface SchedulingFormData {
@@ -63,24 +68,27 @@ Data de nascimento: ${formData.birthdate}`;
   };
 
   return (
-    <div className="min-h-screen gradient-bg">
+    <div className="min-h-screen gradient-bg relative">
       <FloatingDecorations />
-      
       {/* Navigation Header */}
       <nav className="relative z-10 bg-white/90 backdrop-blur-sm shadow-lg rounded-b-3xl mx-4 mt-4">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-r from-[#A78BFA] to-[#93C5FD] rounded-full flex items-center justify-center text-white text-xl">
-                <ScissorsIcon />
+              <div className="w-12 h-12 rounded-full overflow-hidden">
+                <img 
+                  src="https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/logo.png" 
+                  alt="Tia Déa Logo" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-[#A78BFA] to-[#93C5FD] bg-clip-text text-transparent">
+                <h1 className="font-bold bg-gradient-to-r from-[#A678E2] to-[#4AB7F0] bg-clip-text text-transparent text-[21px]">
                   Tia Déa | Salão Móvel Infantil
                 </h1>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center">
               {config.instagramUrl && (
                 <a 
                   href={config.instagramUrl} 
@@ -92,17 +100,10 @@ Data de nascimento: ${formData.birthdate}`;
                   <Instagram className="w-5 h-5" />
                 </a>
               )}
-              <Link href="/login">
-                <CustomButton variant="primary" size="md">
-                  <Lock className="w-4 h-4 mr-2" />
-                  Admin
-                </CustomButton>
-              </Link>
             </div>
           </div>
         </div>
       </nav>
-
       {/* Hero Section */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 py-12">
         <GradientCard>
@@ -112,15 +113,15 @@ Data de nascimento: ${formData.birthdate}`;
             description={config.serviceDescription}
           />
           
-          <div className="bg-gradient-to-r from-[#A78BFA] to-[#93C5FD] text-white p-4 rounded-2xl mb-6">
-            <p className="text-lg font-semibold text-center">
-              🏠 Atendimento a Domicílio: Segunda, Terça e Quarta (consulte disponibilidade)
-            </p>
+          <div className="bg-gradient-to-r from-[#A678E2] to-[#4AB7F0] text-white p-4 rounded-2xl mb-6">
+            <p className="font-semibold text-center text-[18px]">🏠 Atendimento a Domicílio: 
+            Segunda e Terça (consulte disponibilidade)</p>
           </div>
 
           {/* Image Gallery */}
           <div className="mb-8">
-            <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">📸 Nossa Galeria Encantada</h3>
+            <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">📸 Galeria
+</h3>
             <ImageCarousel images={salonImages} />
           </div>
 
@@ -180,26 +181,34 @@ Data de nascimento: ${formData.birthdate}`;
               </h4>
               <p className="text-gray-600">
                 Atendimento Domiciliar:<br />
-                Segunda, Terça e Quarta<br />
+                Segunda e Terça<br />
                 <span className="text-sm italic">(Consulte disponibilidade)</span>
               </p>
             </div>
           </div>
         </GradientCard>
       </section>
-
       {/* Footer */}
-      <footer className="relative z-10 text-center py-8">
+      <footer className="relative z-10 py-8">
         <div className="bg-white/90 backdrop-blur-sm rounded-t-3xl mx-4 p-6">
-          <p className="text-gray-600 mb-2">
-            💜 Feito com carinho pela <strong>Tia Déa</strong>
-          </p>
-          <p className="text-sm text-gray-500">
-            Salão Infantil Encantado - Transformando sorrisos, um corte por vez! ✨
-          </p>
+          <div className="flex items-center justify-between">
+            <div className="text-center flex-1">
+              <p className="text-gray-600 mb-2">
+                💜 Feito com carinho pela <strong>Tia Déa</strong>
+              </p>
+              <p className="text-gray-500 text-[12px]">Tia Déa - Transformando cortes em momentos mágicos ✨</p>
+            </div>
+            <div className="ml-4">
+              <Link href="/login">
+                <CustomButton variant="primary" size="md" className="text-[12px] font-extrabold">
+                  <Lock className="w-4 h-4 mr-2" />
+                  Admin
+                </CustomButton>
+              </Link>
+            </div>
+          </div>
         </div>
       </footer>
-
       {/* Scheduling Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-md">
@@ -268,7 +277,7 @@ Data de nascimento: ${formData.birthdate}`;
                 type="button" 
                 variant="ghost" 
                 onClick={() => setIsModalOpen(false)}
-                className="flex-1"
+                className="inline-flex items-center justify-center rounded-full duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-gradient-to-r from-[#A78BFA] to-[#93C5FD] hover:opacity-90 focus:ring-purple-500 px-6 py-3 shadow-lg hover:shadow-xl transition-shadow text-[12px] font-extrabold text-[#1f2937]"
               >
                 Cancelar
               </CustomButton>

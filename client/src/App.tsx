@@ -1,7 +1,7 @@
 import { Switch, Route } from "wouter";
 import { AppProvider } from "./contexts/AppContext";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import AdminLayout from "./pages/AdminLayout";
@@ -27,10 +27,10 @@ function AppRouter() {
 function App() {
   return (
     <AppProvider>
-      <TooltipProvider>
-        <Toaster />
+      <div className="min-h-screen bg-gray-50">
         <AppRouter />
-      </TooltipProvider>
+        <Toaster />
+      </div>
     </AppProvider>
   );
 }

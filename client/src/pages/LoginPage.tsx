@@ -38,8 +38,12 @@ export default function LoginPage() {
       <div className="relative z-10 w-full max-w-md mx-4">
         <GradientCard className="p-8">
           <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-gradient-to-r from-[#A78BFA] to-[#93C5FD] rounded-full flex items-center justify-center mx-auto mb-4">
-              <ScissorsIcon className="text-3xl text-white" />
+            <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4">
+              <img 
+                src="https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/logo.png" 
+                alt="Tia Déa Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Área Administrativa</h1>
             <p className="text-gray-600">Salão Infantil Encantado</p>
@@ -95,7 +99,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <button
               onClick={() => setLocation('/')}
-              className="text-[#A78BFA] hover:text-[#93C5FD] font-medium text-sm transition-colors"
+              className="text-[#A678E2] hover:text-[#4AB7F0] font-medium text-sm transition-colors"
             >
               ← Voltar para o site
             </button>

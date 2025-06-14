@@ -33,7 +33,7 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
 
   if (images.length === 0) {
     return (
-      <div className={`relative rounded-3xl bg-gray-200 h-64 md:h-80 flex items-center justify-center ${className}`}>
+      <div className={`relative rounded-3xl bg-gray-200 aspect-square flex items-center justify-center ${className}`}>
         <p className="text-gray-500">Nenhuma imagem disponível</p>
       </div>
     );
@@ -46,14 +46,14 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
         {images.map((image, index) => (
-          <div key={index} className="w-full flex-shrink-0">
+          <div key={index} className="w-full flex-shrink-0 aspect-square">
             <img 
               src={image} 
               alt={`Slide ${index + 1}`}
-              className="w-full h-64 md:h-80 object-cover"
+              className="w-full h-full object-cover"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbSBuZW8gZGlzcG9uw612ZWw8L3RleHQ+PC9zdmc+';
+                target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbSBuZW8gZGlzcG9uw612ZWw8L3RleHQ+PC9zdmc+';
               }}
             />
           </div>
@@ -66,13 +66,13 @@ export const ImageCarousel: React.FC<ImageCarouselProps> = ({
             onClick={previousSlide}
             className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-3 shadow-lg transition-all duration-300"
           >
-            <ChevronLeft className="w-5 h-5 text-[#A78BFA]" />
+            <ChevronLeft className="w-5 h-5 text-[#A678E2]" />
           </button>
           <button
             onClick={nextSlide}
             className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-3 shadow-lg transition-all duration-300"
           >
-            <ChevronRight className="w-5 h-5 text-[#A78BFA]" />
+            <ChevronRight className="w-5 h-5 text-[#A678E2]" />
           </button>
           
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
