@@ -13,6 +13,8 @@ import {
 } from '../constants';
 import { isBirthday, getTodayDateString } from '../utils/helpers';
 import { useToast } from '../hooks/use-toast';
+import { configService } from '../services/supabaseService';
+import { galleryService } from '../services/supabaseService'; // Import galleryService
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
@@ -23,30 +25,55 @@ const defaultConfig: AppConfig = {
   salonAddress: DEFAULT_SALON_ADDRESS,
   whatsAppNumber: DEFAULT_WHATSAPP_NUMBER,
   instagramUrl: DEFAULT_INSTAGRAM_URL,
-  adminPassword: ADMIN_DEFAULT_PASSWORD
+  adminPassword: ADMIN_DEFAULT_PASSWORD,
+  galleryImages: [] // Initialize galleryImages
 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
   const [theme, setTheme] = useLocalStorage<Theme>(LOCAL_STORAGE_KEYS.THEME_KEY, 'light');
   const [isAuthenticated, setIsAuthenticated] = useLocalStorage<boolean>(LOCAL_STORAGE_KEYS.AUTH_KEY, false);
-  const [config, setConfig] = useLocalStorage<AppConfig>(LOCAL_STORAGE_KEYS.CONFIG_KEY, defaultConfig);
+  const [config, setConfig] = useState<AppConfig>({
+    stylistName: DEFAULT_STYLIST_NAME,
+    serviceDescription: DEFAULT_SERVICE_DESCRIPTION,
+    homeServiceDays: DEFAULT_HOME_SERVICE_DAYS,
+    salonAddress: DEFAULT_SALON_ADDRESS,
+    whatsAppNumber: DEFAULT_WHATSAPP_NUMBER,
+    instagramUrl: DEFAULT_INSTAGRAM_URL,
+    adminPassword: ADMIN_DEFAULT_PASSWORD,
+    galleryImages: [] // Initialize galleryImages
+  });
+
+  // Load config from Supabase
+  useEffect(() => {
+    loadConfig();
+  }, []);
+
+  const loadConfig = async () => {
+    try {
+      const dbConfig = await configService.getConfig();
+      setConfig(dbConfig);
+    } catch (error) {
+      console.error('Erro ao carregar configurações:', error);
+      // Keep default config if error
+    }
+  };
 
   // Migration: Update address and service days if they're still the old defaults
   useEffect(() => {
     let needsUpdate = false;
     const updates: Partial<AppConfig> = {};
-    
+
     if (config.salonAddress === "Rua da Alegria, 123 - Bairro Feliz (Consulte sobre atendimento móvel)") {
       updates.salonAddress = DEFAULT_SALON_ADDRESS;
       needsUpdate = true;
     }
-    
+
     if (JSON.stringify(config.homeServiceDays) === JSON.stringify([1, 2, 3])) {
       updates.homeServiceDays = DEFAULT_HOME_SERVICE_DAYS;
       needsUpdate = true;
     }
-    
+
     if (needsUpdate) {
       setConfig(prev => ({ ...prev, ...updates }));
     }
@@ -70,8 +97,51 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setIsAuthenticated(false);
   };
 
-  const updateConfig = (newConfig: Partial<AppConfig>) => {
-    setConfig(prev => ({ ...prev, ...newConfig }));
+  const updateConfig = async (newConfig: Partial<AppConfig>) => {
+    try {
+      await configService.updateConfig(newConfig);
+      setConfig(prev => ({ ...prev, ...newConfig }));
+      showNotification('Configurações atualizadas com sucesso!', 'success');
+    } catch (error) {
+      console.error('Erro ao atualizar configurações:', error);
+      showNotification('Erro ao atualizar configurações', 'error');
+    }
+  };
+
+  const uploadGalleryImage = async (file: File) => {
+    try {
+      const imageUrl = await galleryService.uploadImage(file);
+      const newImages = [...config.galleryImages, imageUrl];
+      setConfig(prev => ({ ...prev, galleryImages: newImages }));
+      showNotification('Imagem adicionada à galeria!', 'success');
+    } catch (error) {
+      console.error('Erro ao fazer upload da imagem:', error);
+      if (error && typeof error === 'object' && 'message' in error) {
+        if (error.message.includes('Bucket not found')) {
+          showNotification('Erro: Bucket "salon-gallery" não encontrado no Supabase. Crie o bucket primeiro.', 'error');
+        } else {
+          showNotification(`Erro ao fazer upload: ${error.message}`, 'error');
+        }
+      } else {
+        showNotification('Erro ao fazer upload da imagem', 'error');
+      }
+    }
+  };
+
+  const deleteGalleryImage = async (url: string) => {
+    try {
+      await galleryService.deleteImage(url);
+      const newImages = config.galleryImages.filter(img => img !== url);
+      setConfig(prev => ({ ...prev, galleryImages: newImages }));
+      showNotification('Imagem removida da galeria!', 'success');
+    } catch (error) {
+      console.error('Erro ao remover imagem:', error);
+      if (error && typeof error === 'object' && 'message' in error) {
+        showNotification(`Erro ao remover imagem: ${error.message}`, 'error');
+      } else {
+        showNotification('Erro ao remover imagem', 'error');
+      }
+    }
   };
 
   const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
@@ -87,7 +157,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const today = getTodayDateString();
     if (isAuthenticated && birthdayCheckedToday !== today) {
       const birthdayClients = clients.filter(client => isBirthday(client.birthdate));
-      
+
       if (birthdayClients.length > 0) {
         birthdayClients.forEach(client => {
           showNotification(
@@ -118,6 +188,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     logout,
     config,
     updateConfig,
+    uploadGalleryImage,
+    deleteGalleryImage,
     showNotification
   };
 

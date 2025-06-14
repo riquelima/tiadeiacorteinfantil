@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { useApp } from '../contexts/AppContext';
 import { getWhatsAppLink } from '../utils/helpers';
 
-const salonImages = [
+// Imagens padrão caso não haja imagens na galeria
+const defaultSalonImages = [
   'https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/1.png',
   'https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/2.png',
   'https://raw.githubusercontent.com/riquelima/tiadeiacorteinfantil/refs/heads/main/3.png',
@@ -33,6 +34,9 @@ interface SchedulingFormData {
 
 export default function LandingPage() {
   const { config } = useApp();
+  
+  // Usar imagens da galeria se disponíveis, senão usar as padrão
+  const salonImages = config.galleryImages.length > 0 ? config.galleryImages : defaultSalonImages;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<SchedulingFormData>({
     responsibleName: '',
@@ -127,11 +131,12 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
           </div>
 
           {/* Image Gallery */}
-          <div className="mb-8">
-            <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">📸 Galeria
-</h3>
-            <ImageCarousel images={salonImages} />
-          </div>
+          {salonImages.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-2xl font-bold text-center mb-6 text-gray-800">📸 Galeria</h3>
+              <ImageCarousel images={salonImages} />
+            </div>
+          )}
 
           {/* Services Grid */}
           <div className="grid md:grid-cols-3 gap-6 mb-8">

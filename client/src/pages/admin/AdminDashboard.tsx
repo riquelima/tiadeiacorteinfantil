@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Calendar, Users, DollarSign, TrendingUp, Clock, Plus, MessageSquare } from 'lucide-react';
 import { GradientCard, SectionHeader, CustomButton } from '../../components/ui-custom';
@@ -7,11 +7,37 @@ import { LOCAL_STORAGE_KEYS } from '../../constants';
 import { Client, Appointment, FinancialRecord } from '../../types';
 import { formatCurrency, isClientRecent, getStatusLabel } from '../../utils/helpers';
 import { Badge } from '@/components/ui/badge';
+import { appointmentService, clientService } from '../../services/supabaseService';
+import { useApp } from '../../contexts/AppContext';
 
 export default function AdminDashboard() {
-  const [clients] = useLocalStorage<Client[]>(LOCAL_STORAGE_KEYS.CLIENTS_KEY, []);
-  const [appointments] = useLocalStorage<Appointment[]>(LOCAL_STORAGE_KEYS.APPOINTMENTS_KEY, []);
+  const { showNotification } = useApp();
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [financials] = useLocalStorage<FinancialRecord[]>(LOCAL_STORAGE_KEYS.FINANCIALS_KEY, []);
+  const [loading, setLoading] = useState(true);
+
+  // Carregar dados do Supabase
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [appointmentsData, clientsData] = await Promise.all([
+        appointmentService.getAll(),
+        clientService.getAll()
+      ]);
+      setAppointments(appointmentsData);
+      setClients(clientsData);
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error);
+      showNotification('Erro ao carregar dados do dashboard', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Calculate statistics
   const totalClients = clients.length;
@@ -66,6 +92,21 @@ export default function AdminDashboard() {
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     .slice(0, 5);
 
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <GradientCard className="p-6">
+          <div className="text-center">
+            <div className="animate-spin w-12 h-12 border-4 border-[#A78BFA] border-t-transparent rounded-full mx-auto mb-4"></div>
+            <h3 className="text-lg font-medium text-gray-600 mb-2">
+              Carregando dashboard...
+            </h3>
+          </div>
+        </GradientCard>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <SectionHeader
@@ -76,68 +117,76 @@ export default function AdminDashboard() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <GradientCard className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total de Clientes</p>
-              <p className="text-3xl font-bold text-gray-800">{totalClients}</p>
+        <Link href="/admin/clients">
+          <GradientCard className="p-6 cursor-pointer hover:scale-105 transition-transform">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total de Clientes</p>
+                <p className="text-3xl font-bold text-gray-800">{totalClients}</p>
+              </div>
+              <Users className="w-8 h-8 text-[#A678E2]" />
             </div>
-            <Users className="w-8 h-8 text-[#A678E2]" />
-          </div>
-          <div className="mt-4 flex items-center space-x-2">
-            <Badge variant="secondary" className="text-xs">
-              {recentClients} novos (7 dias)
-            </Badge>
-            <Badge variant="outline" className="text-xs">
-              {vipClients} VIP
-            </Badge>
-          </div>
-        </GradientCard>
+            <div className="mt-4 flex items-center space-x-2">
+              <Badge variant="secondary" className="text-xs">
+                {recentClients} novos (7 dias)
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {vipClients} VIP
+              </Badge>
+            </div>
+          </GradientCard>
+        </Link>
 
-        <GradientCard className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Agendamentos Hoje</p>
-              <p className="text-3xl font-bold text-gray-800">{todayAppointments.length}</p>
+        <Link href="/admin/appointments">
+          <GradientCard className="p-6 cursor-pointer hover:scale-105 transition-transform">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Agendamentos Hoje</p>
+                <p className="text-3xl font-bold text-gray-800">{todayAppointments.length}</p>
+              </div>
+              <Calendar className="w-8 h-8 text-[#4AB7F0]" />
             </div>
-            <Calendar className="w-8 h-8 text-[#4AB7F0]" />
-          </div>
-          <div className="mt-4">
-            <Badge variant="outline" className="text-xs">
-              {pendingAppointments} pendentes
-            </Badge>
-          </div>
-        </GradientCard>
+            <div className="mt-4">
+              <Badge variant="outline" className="text-xs">
+                {pendingAppointments} pendentes
+              </Badge>
+            </div>
+          </GradientCard>
+        </Link>
 
-        <GradientCard className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Agendamentos Semana</p>
-              <p className="text-3xl font-bold text-gray-800">{weekAppointments.length}</p>
+        <Link href="/admin/appointments">
+          <GradientCard className="p-6 cursor-pointer hover:scale-105 transition-transform">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Agendamentos Semana</p>
+                <p className="text-3xl font-bold text-gray-800">{weekAppointments.length}</p>
+              </div>
+              <Clock className="w-8 h-8 text-[#F9D449]" />
             </div>
-            <Clock className="w-8 h-8 text-[#F9D449]" />
-          </div>
-          <div className="mt-4">
-            <Badge variant="secondary" className="text-xs">
-              próximos 7 dias
-            </Badge>
-          </div>
-        </GradientCard>
+            <div className="mt-4">
+              <Badge variant="secondary" className="text-xs">
+                próximos 7 dias
+              </Badge>
+            </div>
+          </GradientCard>
+        </Link>
 
-        <GradientCard className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Faturamento Mensal</p>
-              <p className="text-3xl font-bold text-gray-800">{formatCurrency(totalMonthlyEarnings)}</p>
+        <Link href="/admin/financials">
+          <GradientCard className="p-6 cursor-pointer hover:scale-105 transition-transform">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Faturamento Mensal</p>
+                <p className="text-3xl font-bold text-gray-800">{formatCurrency(totalMonthlyEarnings)}</p>
+              </div>
+              <DollarSign className="w-8 h-8 text-[#7BD8B2]" />
             </div>
-            <DollarSign className="w-8 h-8 text-[#7BD8B2]" />
-          </div>
-          <div className="mt-4">
-            <Badge variant="secondary" className="text-xs">
-              {completedAppointmentsThisMonth.length} serviços concluídos
-            </Badge>
-          </div>
-        </GradientCard>
+            <div className="mt-4">
+              <Badge variant="secondary" className="text-xs">
+                {completedAppointmentsThisMonth.length} serviços concluídos
+              </Badge>
+            </div>
+          </GradientCard>
+        </Link>
       </div>
 
       {/* Quick Actions */}

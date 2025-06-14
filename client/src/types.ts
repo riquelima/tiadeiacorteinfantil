@@ -53,14 +53,29 @@ export interface TesourinhaEntry {
 }
 
 export interface AppContextType {
+  // Theme
   theme: Theme;
   toggleTheme: () => void;
+
+  // Authentication
   isAuthenticated: boolean;
   login: (password: string) => boolean;
   logout: () => void;
+
+  // Configuration
   config: AppConfig;
   updateConfig: (newConfig: Partial<AppConfig>) => void;
+
+  // Gallery
+  uploadGalleryImage: (file: File) => Promise<void>;
+  deleteGalleryImage: (url: string) => Promise<void>;
+
+  // Notifications
   showNotification: (message: string, type?: 'success' | 'error' | 'info') => void;
+
+  // Birthday tracking
+  dismissedBirthdays: string[];
+  dismissBirthday: (clientId: string) => void;
 }
 
 export interface BirthdayNotification {

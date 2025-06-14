@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, Plus, Edit, Trash2, Phone, Search, Grid, List, Filter } from 'lucide-react';
 import { GradientCard, SectionHeader, CustomButton, StatusBadge } from '../../components/ui-custom';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
-import { LOCAL_STORAGE_KEYS } from '../../constants';
 import { Client } from '../../types';
-import { formatDate, generateId, isClientRecent, getWhatsAppLink } from '../../utils/helpers';
+import { formatDate, isClientRecent, getWhatsAppLink } from '../../utils/helpers';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useApp } from '../../contexts/AppContext';
+import { clientService } from '../../services/supabaseService';
 
 interface ClientFormData {
   childName: string;
@@ -40,16 +39,36 @@ type ViewMode = 'grid' | 'list';
 type ServiceTypeFilter = 'all' | 'Domicílio' | 'Salão';
 
 export default function ClientsPage() {
-  const { config } = useApp();
-  const [clients, setClients] = useLocalStorage<Client[]>(LOCAL_STORAGE_KEYS.CLIENTS_KEY, []);
+  const { config, showNotification } = useApp();
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
   
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [searchTerm, setSearchTerm] = useState('');
   const [serviceTypeFilter, setServiceTypeFilter] = useState<ServiceTypeFilter>('all');
   const [showClientDropdown, setShowClientDropdown] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [formData, setFormData] = useState<ClientFormData>(defaultFormData);
+
+  // Load clients from Supabase
+  useEffect(() => {
+    loadClients();
+  }, []);
+
+  const loadClients = async () => {
+    try {
+      setLoading(true);
+      const data = await clientService.getAll();
+      setClients(data);
+      showNotification('Clientes carregados com sucesso!', 'success');
+    } catch (error) {
+      console.error('Erro ao carregar clientes:', error);
+      showNotification('Erro ao carregar clientes', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter clients based on search and filter criteria
   const getFilteredClients = () => {
@@ -76,32 +95,40 @@ export default function ClientsPage() {
     return filtered.sort((a, b) => a.childName.localeCompare(b.childName));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const clientData: Client = {
-      id: editingClient?.id || generateId(),
-      childName: formData.childName,
-      responsibleName: formData.responsibleName,
-      address: formData.address,
-      birthdate: formData.birthdate,
-      phone: formData.phone || undefined,
-      email: formData.email || undefined,
-      notes: formData.notes || undefined,
-      serviceCount: editingClient?.serviceCount || 0,
-      lastServiceDate: editingClient?.lastServiceDate,
-      serviceType: formData.serviceType
-    };
+    try {
+      const clientData = {
+        childName: formData.childName,
+        responsibleName: formData.responsibleName,
+        address: formData.address,
+        birthdate: formData.birthdate,
+        phone: formData.phone || undefined,
+        email: formData.email || undefined,
+        notes: formData.notes || undefined,
+        serviceCount: editingClient?.serviceCount || 0,
+        lastServiceDate: editingClient?.lastServiceDate,
+        serviceType: formData.serviceType
+      };
 
-    if (editingClient) {
-      setClients(prev => prev.map(client => 
-        client.id === editingClient.id ? clientData : client
-      ));
-    } else {
-      setClients(prev => [...prev, clientData]);
+      if (editingClient) {
+        const updatedClient = await clientService.update(editingClient.id, clientData);
+        setClients(prev => prev.map(client => 
+          client.id === editingClient.id ? updatedClient : client
+        ));
+        showNotification('Cliente atualizado com sucesso!', 'success');
+      } else {
+        const newClient = await clientService.create(clientData);
+        setClients(prev => [...prev, newClient]);
+        showNotification('Cliente cadastrado com sucesso!', 'success');
+      }
+
+      resetForm();
+    } catch (error) {
+      console.error('Erro ao salvar cliente:', error);
+      showNotification('Erro ao salvar cliente', 'error');
     }
-
-    resetForm();
   };
 
   const resetForm = () => {
@@ -125,9 +152,16 @@ export default function ClientsPage() {
     setIsModalOpen(true);
   };
 
-  const deleteClient = (id: string) => {
+  const deleteClient = async (id: string) => {
     if (confirm('Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita.')) {
-      setClients(prev => prev.filter(client => client.id !== id));
+      try {
+        await clientService.delete(id);
+        setClients(prev => prev.filter(client => client.id !== id));
+        showNotification('Cliente excluído com sucesso!', 'success');
+      } catch (error) {
+        console.error('Erro ao excluir cliente:', error);
+        showNotification('Erro ao excluir cliente', 'error');
+      }
     }
   };
 
@@ -216,8 +250,8 @@ export default function ClientsPage() {
 
   const ClientListItem = ({ client }: { client: Client }) => (
     <div className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2 flex-wrap">
             <h3 className="font-bold text-gray-800">{client.childName}</h3>
             <span className="text-gray-600">({client.responsibleName})</span>
@@ -232,7 +266,7 @@ export default function ClientsPage() {
             )}
           </div>
           
-          <div className="flex items-center gap-6 text-sm text-gray-600">
+          <div className="flex items-center gap-6 text-sm text-gray-600 flex-wrap">
             <span>📱 {client.phone || 'Não informado'}</span>
             <span>🎂 {formatDate(client.birthdate)}</span>
             <span>✂️ {client.serviceCount} serviços</span>
@@ -242,32 +276,32 @@ export default function ClientsPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 justify-end flex-shrink-0">
           {client.phone && (
             <Button
               size="sm"
               variant="outline"
               onClick={() => sendWhatsApp(client)}
-              className="text-green-600 hover:text-green-800 h-8"
+              className="text-green-600 hover:text-green-800 h-8 min-w-[40px]"
             >
-              <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
+              <Phone className="w-4 h-4" />
             </Button>
           )}
           <Button
             size="sm"
             variant="outline"
             onClick={() => editClient(client)}
-            className="h-8"
+            className="h-8 min-w-[40px]"
           >
-            <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+            <Edit className="w-4 h-4" />
           </Button>
           <Button
             size="sm"
             variant="outline"
             onClick={() => deleteClient(client.id)}
-            className="text-red-600 hover:text-red-800 h-8"
+            className="text-red-600 hover:text-red-800 h-8 min-w-[40px]"
           >
-            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -367,7 +401,7 @@ export default function ClientsPage() {
       <GradientCard className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-bold text-gray-800">
-            📋 {filteredClients.length} Cliente{filteredClients.length !== 1 ? 's' : ''}
+            📋 {loading ? 'Carregando...' : `${filteredClients.length} Cliente${filteredClients.length !== 1 ? 's' : ''}`}
           </h3>
           
           {searchTerm && (
@@ -381,7 +415,12 @@ export default function ClientsPage() {
           )}
         </div>
 
-        {filteredClients.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin w-8 h-8 border-4 border-[#A78BFA] border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-gray-500">Carregando clientes...</p>
+          </div>
+        ) : filteredClients.length === 0 ? (
           <div className="text-center py-12">
             <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500 text-lg">

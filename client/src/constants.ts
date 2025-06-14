@@ -44,7 +44,7 @@ export const APPOINTMENT_STATUS_LABELS = {
 };
 
 export const APPOINTMENT_STATUS_COLORS = {
-  pending: 'bg-[#F9D449]/20 text-[#D97706] border border-[#F9D449]',
+  pending: 'bg-[#F9D449] text-black border border-[#F9D449]',
   confirmed: 'bg-[#4AB7F0]/20 text-[#0284C7] border border-[#4AB7F0]',
   completed: 'bg-[#7BD8B2]/20 text-[#059669] border border-[#7BD8B2]',
   missed: 'bg-[#F86D70]/20 text-[#DC2626] border border-[#F86D70]',

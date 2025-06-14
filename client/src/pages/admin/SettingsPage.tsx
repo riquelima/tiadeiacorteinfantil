@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Save, User, MapPin, Phone, Instagram, Clock, Lock, ChevronDown, ChevronRight } from 'lucide-react';
+import { Settings, Save, User, MapPin, Phone, Instagram, Clock, Lock, ChevronDown, ChevronRight, Upload, Trash2, Image } from 'lucide-react';
 import { CustomButton, SectionHeader } from '../../components/ui-custom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Input } from '../../components/ui/input';
@@ -11,13 +11,14 @@ import { useApp } from '../../contexts/AppContext';
 import { DAYS_OF_WEEK } from '../../constants';
 
 export default function SettingsPage() {
-  const { config, updateConfig, theme, toggleTheme, showNotification } = useApp();
+  const { config, updateConfig, uploadGalleryImage, deleteGalleryImage, showNotification } = useApp();
   const [formData, setFormData] = useState(config);
   const [hasChanges, setHasChanges] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     profile: false,
     contact: false,
     service: false,
+    gallery: false,
     security: false
   });
 
@@ -43,6 +44,25 @@ export default function SettingsPage() {
       ...prev,
       [section]: !prev[section]
     }));
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith('image/')) {
+        await uploadGalleryImage(file);
+        // Reset input
+        event.target.value = '';
+      } else {
+        showNotification('Por favor, selecione apenas arquivos de imagem', 'error');
+      }
+    }
+  };
+
+  const handleDeleteImage = async (url: string) => {
+    if (window.confirm('Tem certeza que deseja remover esta imagem da galeria?')) {
+      await deleteGalleryImage(url);
+    }
   };
 
   return (
@@ -200,6 +220,81 @@ export default function SettingsPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Gallery Settings */}
+      <Card>
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => toggleSection('gallery')}
+        >
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Image className="w-5 h-5" />
+              Fotos da Galeria
+            </div>
+            {expandedSections.gallery ? (
+              <ChevronDown className="w-5 h-5 text-gray-500" />
+            ) : (
+              <ChevronRight className="w-5 h-5 text-gray-500" />
+            )}
+          </CardTitle>
+        </CardHeader>
+        {expandedSections.gallery && (
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-base font-medium">Gerenciar Imagens da Galeria</Label>
+              <p className="text-sm text-gray-600 mb-3">
+                Adicione ou remova fotos que aparecerão na galeria da página principal
+              </p>
+              
+              {/* Upload Button */}
+              <div className="mb-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="gallery-upload"
+                />
+                <label htmlFor="gallery-upload" className="cursor-pointer">
+                  <div className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Adicionar Foto
+                  </div>
+                </label>
+              </div>
+
+              {/* Gallery Grid */}
+              {config.galleryImages.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {config.galleryImages.map((url, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={url}
+                        alt={`Galeria ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        onClick={() => handleDeleteImage(url)}
+                        className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                        title="Remover imagem"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                  <Image className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500">Nenhuma foto na galeria</p>
+                  <p className="text-sm text-gray-400">Adicione fotos para exibir na página principal</p>
+                </div>
+              )}
             </div>
           </CardContent>
         )}

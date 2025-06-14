@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { DollarSign, TrendingUp, Calendar, Download, Plus } from 'lucide-react';
 import { CustomButton } from '../../components/ui-custom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
@@ -10,10 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { FinancialRecord, Appointment } from '../../types';
 import { formatDate, formatCurrency, generateId, exportToCSV } from '../../utils/helpers';
+import { appointmentService } from '../../services/supabaseService';
+import { useApp } from '../../contexts/AppContext';
 
 export default function FinancialsPage() {
+  const { showNotification } = useApp();
   const [financialRecords, setFinancialRecords] = useLocalStorage<FinancialRecord[]>('financialRecords', []);
-  const [appointments] = useLocalStorage<Appointment[]>('appointments', []);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth().toString());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear().toString());
@@ -24,6 +28,24 @@ export default function FinancialsPage() {
     description: '',
     appointmentId: ''
   });
+
+  // Carregar dados do Supabase
+  useEffect(() => {
+    loadAppointments();
+  }, []);
+
+  const loadAppointments = async () => {
+    try {
+      setLoading(true);
+      const appointmentsData = await appointmentService.getAll();
+      setAppointments(appointmentsData);
+    } catch (error) {
+      console.error('Erro ao carregar agendamentos:', error);
+      showNotification('Erro ao carregar dados financeiros', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Calculate financial metrics
   const filteredRecords = useMemo(() => {
@@ -275,7 +297,13 @@ export default function FinancialsPage() {
           <CardTitle>Movimentação Financeira - {currentMonthName}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin w-8 h-8 border-4 border-[#A78BFA] border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className="text-gray-600">Carregando dados financeiros...</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
             {/* Manual Records */}
             {filteredRecords.map((record) => (
               <div key={record.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -324,7 +352,8 @@ export default function FinancialsPage() {
                 </p>
               </div>
             )}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
