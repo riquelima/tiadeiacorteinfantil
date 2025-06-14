@@ -29,8 +29,6 @@ interface SchedulingFormData {
   childName: string;
   address: string;
   birthdate: string;
-  preferredDate: string;
-  preferredTime: string;
 }
 
 export default function LandingPage() {
@@ -43,9 +41,7 @@ export default function LandingPage() {
     responsibleName: '',
     childName: '',
     address: '',
-    birthdate: '',
-    preferredDate: '',
-    preferredTime: ''
+    birthdate: ''
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -65,7 +61,7 @@ export default function LandingPage() {
         birthdate: formData.birthdate,
         phone: '', // Será preenchido posteriormente se necessário
         email: undefined,
-        notes: `Agendamento solicitado em ${new Date().toLocaleDateString('pt-BR')} para ${formData.preferredDate ? new Date(formData.preferredDate).toLocaleDateString('pt-BR') : 'data não informada'} às ${formData.preferredTime || 'horário não informado'}`,
+        notes: `Agendamento solicitado em ${new Date().toLocaleDateString('pt-BR')}`,
         serviceCount: 0,
         serviceType: 'Domicílio' as const
       };
@@ -77,9 +73,7 @@ export default function LandingPage() {
 Nome do responsável: ${formData.responsibleName}
 Nome da criança: ${formData.childName}
 Endereço: ${formData.address}
-Data de nascimento: ${formData.birthdate ? new Date(formData.birthdate).toLocaleDateString('pt-BR') : 'Não informado'}
-Data preferida: ${formData.preferredDate ? new Date(formData.preferredDate).toLocaleDateString('pt-BR') : 'Não informado'}
-Horário preferido: ${formData.preferredTime || 'Não informado'}`;
+Data de nascimento: ${formData.birthdate ? new Date(formData.birthdate).toLocaleDateString('pt-BR') : 'Não informado'}`;
 
       const whatsappLink = getWhatsAppLink('5571988624093', message);
       window.open(whatsappLink, '_blank');
@@ -90,9 +84,7 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
         responsibleName: '',
         childName: '',
         address: '',
-        birthdate: '',
-        preferredDate: '',
-        preferredTime: ''
+        birthdate: ''
       });
 
     } catch (error) {
@@ -103,9 +95,7 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
 Nome do responsável: ${formData.responsibleName}
 Nome da criança: ${formData.childName}
 Endereço: ${formData.address}
-Data de nascimento: ${formData.birthdate ? new Date(formData.birthdate).toLocaleDateString('pt-BR') : 'Não informado'}
-Data preferida: ${formData.preferredDate ? new Date(formData.preferredDate).toLocaleDateString('pt-BR') : 'Não informado'}
-Horário preferido: ${formData.preferredTime || 'Não informado'}`;
+Data de nascimento: ${formData.birthdate ? new Date(formData.birthdate).toLocaleDateString('pt-BR') : 'Não informado'}`;
 
       const whatsappLink = getWhatsAppLink('5571988624093', message);
       window.open(whatsappLink, '_blank');
@@ -116,9 +106,7 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
         responsibleName: '',
         childName: '',
         address: '',
-        birthdate: '',
-        preferredDate: '',
-        preferredTime: ''
+        birthdate: ''
       });
     }
   };
@@ -327,60 +315,6 @@ Horário preferido: ${formData.preferredTime || 'Não informado'}`;
                 required
                 className="mt-1"
               />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="preferredDate">📅 Data Preferida</Label>
-                <Input
-                  id="preferredDate"
-                  name="preferredDate"
-                  type="date"
-                  value={formData.preferredDate}
-                  onChange={handleInputChange}
-                  required
-                  className="mt-1"
-                  min={new Date().toISOString().split('T')[0]}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="preferredTime">⏰ Horário Preferido</Label>
-                <div className="relative mt-1">
-                  <Input
-                    id="preferredTime"
-                    name="preferredTime"
-                    type="text"
-                    placeholder="__:__"
-                    value={formData.preferredTime}
-                    onChange={(e) => {
-                      let value = e.target.value.replace(/[^\d]/g, '');
-                      if (value.length >= 3) {
-                        value = value.slice(0, 2) + ':' + value.slice(2, 4);
-                      }
-                      if (value.length <= 5) {
-                        setFormData(prev => ({ ...prev, preferredTime: value }));
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Backspace' && formData.preferredTime.endsWith(':')) {
-                        e.preventDefault();
-                        setFormData(prev => ({ ...prev, preferredTime: prev.preferredTime.slice(0, -2) }));
-                      }
-                    }}
-                    required
-                    className="text-center font-mono text-lg tracking-wider"
-                    maxLength={5}
-                    pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
-                    title="Digite o horário no formato HH:MM"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-gray-400 font-mono text-lg">
-                    <span className={`${formData.preferredTime.length < 2 ? 'opacity-100' : 'opacity-0'}`}>
-                      __:__
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <div className="flex space-x-3 pt-4">

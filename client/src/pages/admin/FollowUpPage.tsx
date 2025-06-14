@@ -37,6 +37,9 @@ export default function FollowUpPage() {
           clientService.getAll(),
           appointmentService.getAll()
         ]);
+        console.log('Clientes carregados:', clientsData.length);
+        console.log('Agendamentos carregados:', appointmentsData.length);
+        console.log('Agendamentos:', appointmentsData);
         setClients(clientsData);
         setAppointments(appointmentsData);
       } catch (error) {
@@ -50,66 +53,69 @@ export default function FollowUpPage() {
   }, [showNotification]);
 
   const followupClients = useMemo(() => {
-    const completedAppointments = appointments.filter(a => a.status === 'completed');
-    const clientLastAppointment = new Map<string, Date>();
-
-    completedAppointments.forEach(appointment => {
-      const appointmentDate = new Date(appointment.date);
-      const clientKey = appointment.clientName.toLowerCase();
-
-      const currentLastDate = clientLastAppointment.get(clientKey);
-      if (!currentLastDate || appointmentDate > currentLastDate) {
-        clientLastAppointment.set(clientKey, appointmentDate);
-      }
-    });
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    
+    console.log('Calculando follow-up clients...');
+    console.log('Total de clientes:', clients.length);
+    console.log('Total de agendamentos:', appointments.length);
 
-    return clients.map(client => {
-      const searchKeys = [
-        `${client.childName} (${client.responsibleName})`.toLowerCase(),
-        client.childName.toLowerCase(),
-        client.responsibleName.toLowerCase()
-      ];
-
-      let lastServiceDate: Date | null = null;
-
-      for (const key of searchKeys) {
-        if (clientLastAppointment.has(key)) {
-          lastServiceDate = clientLastAppointment.get(key)!;
-          break;
+    const results = clients.map(client => {
+      console.log(`\nProcessando cliente: ${client.childName} (${client.responsibleName})`);
+      
+      // Buscar agendamentos deste cliente por nome da criança ou responsável
+      const clientAppointments = appointments.filter(appointment => {
+        const appointmentClientLower = appointment.clientName.toLowerCase();
+        const clientChildLower = client.childName.toLowerCase();
+        const clientResponsibleLower = client.responsibleName.toLowerCase();
+        
+        // Verificar se o nome do agendamento contém o nome da criança ou responsável
+        const match = appointmentClientLower.includes(clientChildLower) || 
+               appointmentClientLower.includes(clientResponsibleLower) ||
+               clientChildLower.includes(appointmentClientLower.split('(')[0].trim()) ||
+               clientResponsibleLower.includes(appointmentClientLower.split('(')[0].trim()) ||
+               (appointmentClientLower.includes('(') && 
+                appointmentClientLower.split('(')[1]?.replace(')', '').trim().includes(clientResponsibleLower));
+        
+        if (match) {
+          console.log(`  Agendamento encontrado: ${appointment.clientName} - ${appointment.date}`);
         }
+        
+        return match;
+      });
+
+      console.log(`  Agendamentos encontrados: ${clientAppointments.length}`);
+
+      if (clientAppointments.length === 0) {
+        console.log(`  Cliente sem agendamentos, ignorando.`);
+        return null; // Sem histórico de agendamentos
       }
 
-      if (!lastServiceDate) {
-        for (const [appointmentClient, date] of clientLastAppointment.entries()) {
-          if (appointmentClient.includes(client.childName.toLowerCase()) ||
-              appointmentClient.includes(client.responsibleName.toLowerCase())) {
-            lastServiceDate = date;
-            break;
-          }
-        }
+      // Encontrar o agendamento mais recente
+      const sortedAppointments = clientAppointments.sort((a, b) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      
+      const lastAppointment = sortedAppointments[0];
+      const lastServiceDate = new Date(lastAppointment.date);
+      
+      // Calcular dias desde o último serviço
+      const daysSinceService = Math.floor((today.getTime() - lastServiceDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      console.log(`  Último agendamento: ${lastAppointment.date}`);
+      console.log(`  Dias desde o último serviço: ${daysSinceService}`);
+      
+      // Só incluir clientes que tiveram agendamentos há mais de 15 dias
+      if (daysSinceService < 15) {
+        console.log(`  Cliente muito recente (< 15 dias), ignorando.`);
+        return null;
       }
-
-      if (!lastServiceDate) {
-        return {
-          ...client,
-          lastServiceDate: null,
-          daysSinceService: 0,
-          isOverdue: false,
-          isUpcoming: false,
-          hasHistory: false
-        };
-      }
-
-      const normalizedLastServiceDate = new Date(lastServiceDate);
-      normalizedLastServiceDate.setHours(0, 0, 0, 0);
-
-      const daysSinceService = Math.floor((today.getTime() - normalizedLastServiceDate.getTime()) / (1000 * 60 * 60 * 24));
+      
       const isOverdue = daysSinceService >= followupDays;
       const isUpcoming = daysSinceService >= Math.max(0, followupDays - 7) && daysSinceService < followupDays;
 
+      console.log(`  Cliente qualificado para follow-up!`);
+      
       return {
         ...client,
         lastServiceDate: lastServiceDate.toISOString(),
@@ -119,6 +125,9 @@ export default function FollowUpPage() {
         hasHistory: true
       };
     }).filter(Boolean) as Array<Client & { daysSinceService: number; isOverdue: boolean; isUpcoming: boolean; hasHistory: boolean; lastServiceDate: string | null }>;
+    
+    console.log('Clientes de follow-up encontrados:', results.length);
+    return results;
   }, [clients, appointments, followupDays]);
 
   const filteredClients = useMemo(() => {
@@ -185,9 +194,9 @@ export default function FollowUpPage() {
       return <Badge variant="destructive">Muito Atrasado</Badge>;
     } else if (client.daysSinceService > followupDays + 14) {
       return <Badge variant="destructive">Atrasado</Badge>;
-    } else if (client.daysSinceService > followupDays) {
+    } else if (client.daysSinceService >= followupDays) {
       return <Badge className="bg-orange-500 text-white">Para Retorno</Badge>;
-    } else if (client.daysSinceService >= followupDays - 7) {
+    } else if (client.daysSinceService >= Math.max(0, followupDays - 7)) {
       return <Badge className="bg-yellow-500 text-white">Em Breve</Badge>;
     } else {
       return <Badge variant="secondary">Recente</Badge>;
